@@ -54,11 +54,12 @@ if __name__ == "__main__":
                     "id": id+1,
                     "type": incident['incidentDetails']['type'],
                     "source": "HERE",
+                    "sourceid": incident['incidentDetails']['id'],
                     "description": incident['incidentDetails']['description']['value'],
                     "location": incident['location']['shape'],
                     "start": incident['incidentDetails']['startTime'],
                     "end": incident['incidentDetails']['endTime'],
-                    "timestamp": ti_here['sourceUpdated']
+                    "timestamp": ti_here['entryTime']
                 }
                 print(json.dumps(msg, indent=4))
                 id += 1
