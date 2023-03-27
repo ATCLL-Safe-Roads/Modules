@@ -28,7 +28,7 @@ async def test_mongo():
 @router.get("/testmongo2")
 async def test_mongo2():
     Event.insert_one(
-        {"type": "incident", "source": "here", "description": "test", "location": "test", "start": datetime.now(), "end": datetime.now(), "timestamp": datetime.now() }
+        {"id": 3, "type": "construction", "source": "ATCLL", "sourceid": 43654, "description": "test", "location": "test", "start": datetime.now(), "end": datetime.now(), "timestamp": datetime.now() }
     )
     return "OK"
 
