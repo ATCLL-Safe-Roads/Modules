@@ -9,7 +9,8 @@ db = client[settings.MONGO_INITDB_DATABASE]
 
 # Add Here The Collections and The Constraints
 
-#User = db.users
-#Post = db.posts
-#User.create_index([("email", pymongo.ASCENDING)], unique=True)
-#Post.create_index([("title", pymongo.ASCENDING)], unique=True)
+Event = db.events
+Flow = db.flows
+
+Event.create_index([("id", pymongo.ASCENDING)], unique=True)
+Flow.create_index([("id", pymongo.ASCENDING)], unique=True)
