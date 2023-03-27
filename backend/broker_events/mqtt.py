@@ -1,8 +1,11 @@
 import paho.mqtt.client as mqtt
+import requests
 import json
 
 HOST = 'atcll-data.nap.av.it.pt'
 PORT = 1884
+
+API_KEY = 'Zlw7LEfyrn8dHgcKyoQHDTDMMg8YmSNGWkvptwNS2xU'  # REPLACE WITH YOUR OWN
 
 
 class Consumer(object):
@@ -33,4 +36,6 @@ class Producer(object):
         self.client.connect(HOST, PORT)
 
     def publish(self, message, topic="/events"):
-        self.client.publish(topic, message)
+        result = self.client.publish(topic, message, retain=True)
+        status = result[0]
+        return status
