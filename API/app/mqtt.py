@@ -1,5 +1,8 @@
 from fastapi_mqtt import FastMQTT, MQTTConfig
 
+from app.database import Event
+import json
+
 HOST = 'atcll-data.nap.av.it.pt'
 PORT = 1884
 
@@ -14,4 +17,10 @@ def connect(client, flags, rc, properties):
 
 @mqtt.on_message()
 async def message(client, topic, payload, qos, properties):
+    if topic == "/events":
+        if properties["retain"] == 1:
+            return
+        r = payload.decode()
+        j = json.loads(r)
+        Event.insert_one(j)
     print("Received message: ", topic, payload.decode(), qos, properties)
