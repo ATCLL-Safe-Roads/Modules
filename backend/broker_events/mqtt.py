@@ -22,7 +22,7 @@ class Consumer(object):
     def on_message(self, client, userdata, msg):
         try:
             msg_decoded = json.loads(msg.payload.decode("utf-8"))
-            print(msg.topic, msg_decoded)
+            # print(msg.topic, msg_decoded)
         except:
             print("Error decoding message")
 
@@ -36,6 +36,6 @@ class Producer(object):
         self.client.connect(HOST, PORT)
 
     def publish(self, message, topic="/events"):
-        result = self.client.publish(topic, message, retain=True)
+        result = self.client.publish(topic, message, retain=True, qos=0)
         status = result[0]
         return status

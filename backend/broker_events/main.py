@@ -59,14 +59,16 @@ if __name__ == "__main__":
                     "location": incident['location']['shape'],
                     "start": incident['incidentDetails']['startTime'],
                     "end": incident['incidentDetails']['endTime'],
-                    "timestamp": ti_here['entryTime']
+                    "timestamp": incident['incidentDetails']['entryTime']
                 }
-                print(json.dumps(msg, indent=4))
+                print(json.dumps(msg, indent=4, ensure_ascii=False))
                 id += 1
 
                 Producer = mqtt.Producer()
                 topic = "/events"
-                status = Producer.publish(json.dumps(msg), topic)
+                msg1 = {}
+                status = Producer.publish(json.dumps(
+                    msg, ensure_ascii=False).encode('utf-8'), topic)
 
                 if status != 0:
                     print("Error publishing message")
