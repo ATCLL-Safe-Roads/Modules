@@ -1,7 +1,8 @@
 import mqtt
 from threading import Thread
-from backend.broker_events.traffic_incidents_here import fetch_ti_here
-from backend.broker_events.traffic_flow_here import fetch_tf_here
+from traffic_flow_here import fetch_tf_here
+from traffic_incidents_here import fetch_ti_here
+
 
 class Broker(Thread):
     def __init__(self):
@@ -9,6 +10,7 @@ class Broker(Thread):
 
     def run(self):
         mqtt.Consumer().run()
+
 
 if __name__ == "__main__":
     broker = Broker()

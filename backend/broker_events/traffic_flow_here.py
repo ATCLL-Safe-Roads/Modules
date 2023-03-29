@@ -1,6 +1,7 @@
 import mqtt
 import json
 import requests
+import datetime
 
 API_KEY = 'Zlw7LEfyrn8dHgcKyoQHDTDMMg8YmSNGWkvptwNS2xU'  # REPLACE WITH YOUR OWN
 FLOW_URL = 'https://data.traffic.hereapi.com/v7/flow'
@@ -54,7 +55,7 @@ def fetch_tf_here():
                                         # -> shape will give us a lot of coords
         'in': f'circle:{lat},{lon};r={rad}' # radial area => (lat, lon, radius) in meters
     }
-    tf_here = requests.get(url=FLOW_URL, params=params)
+    tf_here = requests.get(url=FLOW_URL, params=params).json()
 
     id = 0
     idf = 0
@@ -66,7 +67,8 @@ def fetch_tf_here():
 
             subSegments = flow['currentFlow']['subSegments']
             shapes = flow['location']['shape']['links']
-
+            
+            tf_here["sourceUpdated"]=datetime.datetime.fromisoformat(tf_here["sourceUpdated"])
             msg = {
                 "id": idf + 1,
                 "source": "HERE",
@@ -85,6 +87,8 @@ def fetch_tf_here():
                 "length": flow['location']['length'],
                 "points": flow['location']['shape']['links']
             }
+            
+            tf_here["sourcesUpdated"]=datetime.datetime.fromisoformat(tf_here["sourcesUpdated"])
 
             msg = {
                 "id": idf + 1,
@@ -100,13 +104,13 @@ def fetch_tf_here():
 
 
         # print lst
-        print(json.dumps(msg, indent=4))
+        print(json.dumps(msg, indent=4, default=str))
         # publish the data to the IT broker topic /traffic-flow-here
         Producer = mqtt.Producer()
         # print(type(msg))
         topic = "/traffic-flow-here"
         status = 0  # 0 = success, 1 = failure
-        status = Producer.publish(json.dumps(msg), topic)
+        status = Producer.publish(json.dumps(msg,default=str), topic)
         if status == 0:
             print(f"Message SUCCESSFULLY SENT!")
             print(f"Message ID: {id}")
