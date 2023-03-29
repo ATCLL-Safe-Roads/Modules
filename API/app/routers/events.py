@@ -33,5 +33,6 @@ async def get_events_filtered(type: str = None, source: str = None, location: st
     if start and end:
         ds = datetime.strptime(start, "%Y-%m-%d")
         de = datetime.strptime(end, "%Y-%m-%d")
-        query["start"] = {"$gte": ds, "$lte": de}
+        query["start"] = {"$lte": ds}
+        query["end"] = {"$gte": de}
     return [eventEntity(event) for event in Event.find(query)]
