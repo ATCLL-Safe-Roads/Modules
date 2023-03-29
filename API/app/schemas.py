@@ -59,6 +59,7 @@ class EventSchema(BaseModel):
 class FlowSchema(BaseModel):
     id: int
     source: str
+    sourceid: str
     location: str
     avgspeed: float
     length: float
