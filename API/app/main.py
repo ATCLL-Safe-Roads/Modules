@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import here, testmongo, events
+from app.routers import here, testmongo, events, flow
 from app.mqtt import mqtt
 
 app = FastAPI()
@@ -26,3 +26,4 @@ app.add_middleware(
 app.include_router(here.router, prefix="/here", tags=["here"])
 app.include_router(testmongo.router, prefix="/testmongo", tags=["testmongo"])
 app.include_router(events.router, prefix="/events", tags=["events"])
+app.include_router(flow.router, prefix="/flow", tags=["flow"])
