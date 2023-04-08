@@ -6,6 +6,18 @@ import datetime
 API_KEY = 'Zlw7LEfyrn8dHgcKyoQHDTDMMg8YmSNGWkvptwNS2xU'  # REPLACE WITH YOUR OWN
 INCIDENT_URL = 'https://data.traffic.hereapi.com/v7/incidents'
 
+cache = []
+
+
+def get_location(lat,lon):
+    params = {
+        'apiKey': API_KEY,
+        'at': f'{lat},{lon}'
+    }
+    r = requests.get(url='https://revgeocode.search.hereapi.com/v1/revgeocode', params=params)
+    rj = r.json()
+    return rj['items'][0]['title']
+
 
 def fetch_ti_here():
 
@@ -21,38 +33,40 @@ def fetch_ti_here():
     }
     ti_here = requests.get(url=INCIDENT_URL, params=params).json()
 
-    id = 0
-    it = 0
-
     if len(ti_here) != 0:
 
         for incident in ti_here["results"]:
-            # convert ISO 8601(incident['incidentDetails']['startTime']) to Datetime
-            incident['incidentDetails']['startTime'] = datetime.datetime.fromisoformat(incident['incidentDetails']['startTime'])
-            incident['incidentDetails']['endTime'] = datetime.datetime.fromisoformat(incident['incidentDetails']['endTime'])
+
+            lat = incident['location']['shape']['links'][0]['points'][0]["lat"]
+            lon = incident['location']['shape']['links'][0]['points'][0]["lng"]
+
+            location = get_location(lat, lon)
 
             msg = {
-                "id": id+1,
                 "type": incident['incidentDetails']['type'],
                 "source": "HERE",
                 "sourceid": incident['incidentDetails']['id'],
                 "description": incident['incidentDetails']['description']['value'],
-                "location": incident['location']['shape'],
+                "location": location,
+                "points": incident['location']['shape']['links'],
                 "start": incident['incidentDetails']['startTime'],
                 "end": incident['incidentDetails']['endTime'],
                 "timestamp": incident['incidentDetails']['entryTime']
             }
-            print(json.dumps(msg, indent=4, ensure_ascii=False, default=str))
-            id += 1
 
-            Producer = mqtt.Producer()
-            topic = "/events"
-            msg1 = {}
-            status = Producer.publish(json.dumps(
-                msg, ensure_ascii=False, default=str).encode('utf-8'), topic)
+            if msg not in cache:
+                cache.append(msg)
+                # print msg
+                print(json.dumps(msg, indent=4, ensure_ascii=False, default=str))
+                Producer = mqtt.Producer()
+                topic = "/events"
+                status = Producer.publish(json.dumps(
+                    msg, ensure_ascii=False, default=str).encode('utf-8'), topic)
 
-            if status != 0:
-                print("Error publishing message")
+                if status != 0:
+                    print("Error publishing message")
+                else:
+                    print("Message published")
             else:
-                print("Message published")
-            return status
+                print("Message already in cache")
+            #return status
