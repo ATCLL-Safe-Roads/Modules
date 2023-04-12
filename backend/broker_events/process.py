@@ -10,7 +10,7 @@ TRANSIT_COUNT_THRESHOLD = 5
 ALERTS_TIME_TO_LIVE = 30 * 60  # seconds
 
 data = None
-with open('aveiro_roads.json') as f:
+with open('aveiro_roads.json', encoding='utf-8') as f:
     data = json.load(f)
 
 
@@ -68,7 +68,8 @@ class Processing():
                     self.data_gather[key] = []
                 class_count[class_label] = camera_response['classCount']
 
-                self.data_gather[key].append(f"{class_count[class_label]}:{time.time()}")
+                self.data_gather[key].append(
+                    f"{class_count[class_label]}:{time.time()}")
 
                 first_data_gather_time = self.data_gather[key][0].split(":")
                 if float(first_data_gather_time[1]) + 60 < time.time():
@@ -76,7 +77,8 @@ class Processing():
                     for speed in self.data_gather[key]:
                         speed = speed.split(':')[0]
                         sum += float(speed)
-                    self.data_gather[key] = [f"{sum / len(self.data_gather[key])}:{time.time()}"]
+                    self.data_gather[key] = [
+                        f"{sum / len(self.data_gather[key])}:{time.time()}"]
         return class_count
 
     '''Process the radar traffic data'''
@@ -108,10 +110,10 @@ class Processing():
 
             current_time = time.time()
             self.data_gather[keys].append(f"{average_speed / count}:{current_time}") if count != 0 else \
-            self.data_gather[keys].append(f"0:{current_time}")
+                self.data_gather[keys].append(f"0:{current_time}")
             self.data_gather[keyc].append(f"{(vehicleHeavy + vehicleLight):.0f}:{current_time}") if (
-                                                                                                                vehicleHeavy + vehicleLight) != 0 else \
-            self.data_gather[keyc].append(f"0:{current_time}")
+                vehicleHeavy + vehicleLight) != 0 else \
+                self.data_gather[keyc].append(f"0:{current_time}")
 
             # Store the vehicle average speed for each minute
             first_data_gather_time = self.data_gather[keys][0].split(":")
@@ -120,13 +122,15 @@ class Processing():
                 for speed in self.data_gather[keys]:
                     speed = speed.split(':')[0]
                     sum += float(speed)
-                self.data_gather[keys] = [f"{sum / len(self.data_gather[keys])}:{time.time()}"]
+                self.data_gather[keys] = [
+                    f"{sum / len(self.data_gather[keys])}:{time.time()}"]
 
                 sum = 0
                 for car in self.data_gather[keyc]:
                     car = car.split(':')[0]
                     sum += float(car)
-                self.data_gather[keyc] = [f"{sum / len(self.data_gather[keyc])}:{time.time()}"]
+                self.data_gather[keyc] = [
+                    f"{sum / len(self.data_gather[keyc])}:{time.time()}"]
 
             if count != 0:
                 return average_speed / count, vehicleHeavy + vehicleLight
@@ -141,26 +145,31 @@ class Processing():
         location = self.post_ids[postID]
         heading = "entry" if heading == 1 else "exit"
 
-        print(f"{location}:{heading} - Cars: {cars}, Avg Speed: {speed}m/s, People:{people}")
+        print(
+            f"{location}:{heading} - Cars: {cars}, Avg Speed: {speed}m/s, People:{people}")
 
         if speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD and people > NUMBER_OF_PEOPLE_THRESHOLD:
             self.transit_counts[postID] += 1
-            print(f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
+            print(
+                f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
             description = f"There is a high amount of traffic at the moment in {location} {heading}"
             level = 3
         elif speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD / 1.5 and people > NUMBER_OF_PEOPLE_THRESHOLD * 1.5:
             self.transit_counts[postID] += 1
-            print(f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
+            print(
+                f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
             description = f"There is some traffic at the moment in {location} {heading}"
             level = 1
         elif speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD * 1.5 and people > NUMBER_OF_PEOPLE_THRESHOLD / 2:
             self.transit_counts[postID] += 1
-            print(f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
+            print(
+                f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
             description = f"There is some traffic at the moment in {location} {heading}"
             level = 2
         elif speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD * 1.2:
             self.transit_counts[postID] += 1
-            print(f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
+            print(
+                f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
             description = f"There is some traffic at the moment in {location} {heading}"
             level = 1
         else:
