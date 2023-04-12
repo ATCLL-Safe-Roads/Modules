@@ -30,6 +30,7 @@ class Consumer(object):
         #print("Subscribing to /events")
         #client.subscribe("/events")
         for id in self.post_ids:
+            self.client.subscribe(f"p{id}/jetson/camera/count")
             self.client.subscribe(f"p{id}/jetson/radar/traffic/1")
             self.client.subscribe(f"p{id}/jetson/radar/traffic/2")
         pass

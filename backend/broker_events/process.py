@@ -166,6 +166,8 @@ class Processing():
         else:
             self.transit_counts[postID] = 0
 
+        print(self.transit_counts[postID])
+
         if self.transit_counts[postID] >= TRANSIT_COUNT_THRESHOLD:
             self.transit_counts[postID] = 0
 
