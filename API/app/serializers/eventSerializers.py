@@ -11,7 +11,7 @@
 
 def eventEntity(event) -> dict:
     return {
-        "id": str(event["_id"]),
+        "id": str(event["id"]),
         "type": event["type"],
         "source": event["source"],
         "sourceid": event["sourceid"],
