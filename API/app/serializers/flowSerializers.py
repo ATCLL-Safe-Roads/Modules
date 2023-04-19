@@ -3,11 +3,9 @@
 #    "source": "str",
 #    "location": "str",
 #    "avgspeed": "float",
-#    "length": "float",
 #    "segments": [
 #        {
-#            "speed": "float",
-#            "length": "float",
+#            "jamFactor": "float",
 #            "points": [
 #                {
 #                    "lat": "double",
@@ -31,7 +29,6 @@ def flowEntity(flow) -> dict:
         "source": flow["source"],
         "location": flow["location"],
         "avgspeed": flow["avgspeed"],
-        "length": flow["length"],
         "segments": flow["segments"],
         "timestamp": flow["timestamp"]
     }

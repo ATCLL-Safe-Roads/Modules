@@ -63,17 +63,23 @@ def get_traffic_flow_HERE(latitude, longitude, radius):
                     "source": "HERE",
                     "location": flow['location']['description'],
                     "avgspeed": flow['currentFlow']['speedUncapped'],
-                    "length": flow['location']['length'],
                     "segments": get_segments(subSegments, shapes),
                     "timestamp": rj['sourceUpdated']
                 }
                 idf += 1
                 lst.append(msg)
             else:
+                jf = 0.0
+                jamtemp = flow['currentFlow']['jamFactor']
+                if jamtemp <= 10 / 3:
+                    jf = 1.0
+                elif jamtemp <= 20 / 3:
+                    jf = 2.0
+                else:
+                    jf = 3.0
+
                 s = {
-                    "speed": flow['currentFlow']['speedUncapped'] * 3.6,
-                    "jamFactor": flow['currentFlow']['jamFactor'],
-                    "length": flow['location']['length'],
+                    "jamFactor": jf,
                     "points": flow['location']['shape']['links']
                 }
 
@@ -82,7 +88,6 @@ def get_traffic_flow_HERE(latitude, longitude, radius):
                     "source": "HERE",
                     "location": flow['location']['description'],
                     "avgspeed": flow['currentFlow']['speedUncapped'],
-                    "length": flow['location']['length'],
                     "segments": [s],
                     "timestamp": rj['sourceUpdated']
                 }
@@ -116,16 +121,22 @@ def get_traffic_incident_HERE(latitude, longitude, radius):
         lst = []
 
         for incident in rj["results"]:
+            lat = incident['location']['shape']['links'][0]['points'][0]["lat"]
+            lon = incident['location']['shape']['links'][0]['points'][0]["lng"]
+
+            location = get_location(lat, lon)
+
             msg = {
                 "id": idi + 1,
                 "type": incident['incidentDetails']['type'],
                 "source": "HERE",
                 "sourceid": incident['incidentDetails']['id'],
                 "description": incident['incidentDetails']['description']['value'],
-                "location": incident['location']['shape'],
+                "location": location,
+                "points": incident['location']['shape']['links'],
                 "start": incident['incidentDetails']['startTime'],
                 "end": incident['incidentDetails']['endTime'],
-                "timestamp": rj['sourceUpdated']
+                "timestamp": incident['incidentDetails']['entryTime']
             }
             idi += 1
             lst.append(msg)
@@ -155,12 +166,29 @@ def get_segments(subsegments, shapes):
             lp.append(pr)
             lt += pr["length"]
 
+        jf = 0.0
+        jamtemp = seg["jamFactor"]
+        if jamtemp <= 10/3:
+            jf = 1.0
+        elif jamtemp <= 20/3:
+            jf = 2.0
+        else:
+            jf = 3.0
+
+
         msg = {
-            "speed": seg["speedUncapped"] * 3.6,
-            "jamFactor": seg["jamFactor"],
-            "length": length,
+            "jamFactor": jf,
             "points": lp
         }
 
         segments.append(msg)
     return segments
+
+def get_location(lat,lon):
+    params = {
+        'apiKey': API_KEY,
+        'at': f'{lat},{lon}'
+    }
+    r = requests.get(url='https://revgeocode.search.hereapi.com/v1/revgeocode', params=params)
+    rj = r.json()
+    return rj['items'][0]['title']

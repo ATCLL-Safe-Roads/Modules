@@ -6,6 +6,8 @@ import datetime
 API_KEY = 'Zlw7LEfyrn8dHgcKyoQHDTDMMg8YmSNGWkvptwNS2xU'  # REPLACE WITH YOUR OWN
 FLOW_URL = 'https://data.traffic.hereapi.com/v7/flow'
 
+cache = []
+
 
 def get_segments(subsegments, shapes):
     segments = []
@@ -29,10 +31,18 @@ def get_segments(subsegments, shapes):
             lp.append(pr)
             lt += pr["length"]
 
+        jf = 0.0
+        jamtemp = seg["jamFactor"]
+        if jamtemp <= 10/3:
+            jf = 1.0
+        elif jamtemp <= 20/3:
+            jf = 2.0
+        else:
+            jf = 3.0
+
+
         msg = {
-            "speed": seg["speedUncapped"] * 3.6,
-            "jamFactor": seg["jamFactor"],
-            "length": length,
+            "jamFactor": jf,
             "points": lp
         }
 
@@ -56,69 +66,58 @@ def fetch_tf_here():
         'in': f'circle:{lat},{lon};r={rad}' # radial area => (lat, lon, radius) in meters
     }
     tf_here = requests.get(url=FLOW_URL, params=params).json()
-
-    id = 0
-    idf = 0
-    lst = []
     
     for flow in tf_here["results"]:
-        
-        if "subSegments" in flow['currentFlow']:
 
+        if "subSegments" in flow['currentFlow']:
             subSegments = flow['currentFlow']['subSegments']
             shapes = flow['location']['shape']['links']
-            
-            tf_here["sourceUpdated"]=datetime.datetime.fromisoformat(tf_here["sourceUpdated"])
             msg = {
-                "id": idf + 1,
                 "source": "HERE",
                 "location": flow['location']['description'],
                 "avgspeed": flow['currentFlow']['speedUncapped'],
-                "length": flow['location']['length'],
                 "segments": get_segments(subSegments, shapes),
                 "timestamp": tf_here['sourceUpdated']
             }
-            idf += 1
-            lst.append(msg)
         else:
+            jf = 0.0
+            jamtemp = flow['currentFlow']['jamFactor']
+            if jamtemp <= 10 / 3:
+                jf = 1.0
+            elif jamtemp <= 20 / 3:
+                jf = 2.0
+            else:
+                jf = 3.0
             s = {
-                "speed": flow['currentFlow']['speedUncapped'] * 3.6,
-                "jamFactor": flow['currentFlow']['jamFactor'],
-                "length": flow['location']['length'],
+                "jamFactor": jf,
                 "points": flow['location']['shape']['links']
             }
-            
-            tf_here["sourcesUpdated"]=datetime.datetime.fromisoformat(tf_here["sourcesUpdated"])
-
             msg = {
-                "id": idf + 1,
                 "source": "HERE",
                 "location": flow['location']['description'],
                 "avgspeed": flow['currentFlow']['speedUncapped'],
-                "length": flow['location']['length'],
-                    "segments": [s],
+                "segments": [s],
                 "timestamp": tf_here['sourceUpdated']
             }
-            idf += 1
-            lst.append(msg)
 
-
-        # print lst
-        print(json.dumps(msg, indent=4, default=str))
-        # publish the data to the IT broker topic /traffic-flow-here
-        Producer = mqtt.Producer()
-        # print(type(msg))
-        topic = "/traffic-flow-here"
-        status = 0  # 0 = success, 1 = failure
-        status = Producer.publish(json.dumps(msg,default=str), topic)
-        if status == 0:
-            print(f"Message SUCCESSFULLY SENT!")
-            print(f"Message ID: {id}")
-            id += 1
+        if msg not in cache:
+            cache.append(msg)
+            # print msg
+            print(json.dumps(msg, indent=4, default=str))
+            # publish the data to the IT broker topic /traffic-flow-here
+            Producer = mqtt.Producer()
+            # print(type(msg))
+            topic = "/traffic-flow-here"
+            status = 0  # 0 = success, 1 = failure
+            status = Producer.publish(json.dumps(msg,default=str), topic)
+            if status == 0:
+                print(f"Message SUCCESSFULLY SENT!")
+            else:
+                print(f"Failed to send message to topic {topic}")
         else:
-            print(f"Failed to send message to topic {topic}")
+            print("Message already in cache")
     
 
 
-    return status
+    #return status
 

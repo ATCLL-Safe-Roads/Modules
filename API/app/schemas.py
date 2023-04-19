@@ -7,9 +7,10 @@ from bson import ObjectId
 #    "id": "int",
 #    "type": "str",
 #    "source": "str",
-#    "sourceid": "str",
+#    "sourceid": "int",
 #    "description": "str",
 #    "location": "str",
+#    "points": "lst",
 #    "start": "datetime",
 #    "end": "datetime",
 #    "timestamp": "datetime"
@@ -21,6 +22,7 @@ class EventSchema(BaseModel):
     sourceid: str
     description: str
     location: str
+    points: list
     start: datetime
     end: datetime
     timestamp: datetime
@@ -34,11 +36,9 @@ class EventSchema(BaseModel):
 #    "source": "str",
 #    "location": "str",
 #    "avgspeed": "float",
-#    "length": "float",
 #    "segments": [
 #        {
-#            "speed": "float",
-#            "length": "float",
+#            "jamFactor": "float",
 #            "points": [
 #                {
 #                    "lat": "double",
@@ -56,12 +56,12 @@ class EventSchema(BaseModel):
 #    "timestamp": "datetime"
 #}
 
+
 class FlowSchema(BaseModel):
     id: int
     source: str
     location: str
     avgspeed: float
-    length: float
     segments: list
     timestamp: datetime
 
