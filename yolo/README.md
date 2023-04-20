@@ -10,6 +10,8 @@ This module contains training data and scripts to support the development of YOL
   
   - `--detect` - model to execute on the frames (`pothole`).
 
+- `wrongway.py` - Connects to a remote camera using RTSP and tracks cars using YOLOv8n, to detect cars driving the wrong way based on an axis and their position.
+
 ## Installation
 
 - Run `pip3 install virtualenv` to install the module `virtualenv`.
@@ -21,7 +23,7 @@ This module contains training data and scripts to support the development of YOL
 
 Some scripts some environment variables to be set. It is recommended to add an `.env` file in the same directory as the script contaning the required variables.
 
-- `atcll_video.py`
+- `atcll_video.py` & `wrongway.py`
   
   - `RTSP_URL` - of the camera to connect to.
 
