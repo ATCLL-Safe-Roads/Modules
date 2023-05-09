@@ -38,13 +38,9 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
-origins = [
-    settings.CLIENT_ORIGIN,
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

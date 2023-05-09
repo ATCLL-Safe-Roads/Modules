@@ -22,7 +22,7 @@ class EventSchema(BaseModel):
     sourceid: str
     description: str
     location: str
-    points: list
+    geometry: list
     start: datetime
     end: datetime
     timestamp: datetime

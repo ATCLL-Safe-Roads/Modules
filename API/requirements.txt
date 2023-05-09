@@ -4,3 +4,4 @@ uvicorn~=0.21.0
 pydantic~=1.10.6
 pymongo~=4.3.3
 paho-mqtt~=1.6.1
+fastapi-mqtt~=1.0.7

@@ -6,6 +6,15 @@ import datetime
 API_KEY = 'Zlw7LEfyrn8dHgcKyoQHDTDMMg8YmSNGWkvptwNS2xU'  # REPLACE WITH YOUR OWN
 INCIDENT_URL = 'https://data.traffic.hereapi.com/v7/incidents'
 
+TYPE = {
+    'accident': 'accident',
+    'construction': 'road_work',
+    'congestion': 'congestion',
+    'disabledVehicle': 'immobilized_vehicle',
+    'roadClosure': 'closed_road',
+    'roadHazard': 'road_hazard'
+}
+
 cache = []
 
 
@@ -36,6 +45,9 @@ def fetch_ti_here():
     if len(ti_here) != 0:
 
         for incident in ti_here["results"]:
+        
+            if incident['incidentDetails']['type'] not in TYPE.keys():
+                continue
 
             lat = incident['location']['shape']['links'][0]['points'][0]["lat"]
             lon = incident['location']['shape']['links'][0]['points'][0]["lng"]
@@ -43,12 +55,12 @@ def fetch_ti_here():
             location = get_location(lat, lon)
 
             msg = {
-                "type": incident['incidentDetails']['type'],
-                "source": "HERE",
+                "type": TYPE[incident['incidentDetails']['type']],
+                "source": "here",
                 "sourceid": incident['incidentDetails']['id'],
                 "description": incident['incidentDetails']['description']['value'],
                 "location": location,
-                "points": incident['location']['shape']['links'],
+                "geometry": incident['location']['shape']['links'],
                 "start": incident['incidentDetails']['startTime'],
                 "end": incident['incidentDetails']['endTime'],
                 "timestamp": incident['incidentDetails']['entryTime']
