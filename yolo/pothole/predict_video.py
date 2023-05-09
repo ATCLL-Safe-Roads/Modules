@@ -1,43 +1,46 @@
+import cv2
 import os
 
 from ultralytics import YOLO
-import cv2
+
+MODEL_PATH = 'runs/detect/train/weights/last.pt'
+VIDEOS_DIR = 'videos'
 
 
-VIDEOS_DIR = os.path.join('.', 'video')
+def main():
+    # Load the model
+    model = YOLO(MODEL_PATH)
 
-video_path = os.path.join(VIDEOS_DIR, 'stock-footage-bad-rural-road-with-the-lot-of-pits-holes-and-puddles-after-the-rain.mp4')
-video_path_out = '{}_out.mp4'.format(video_path)
+    # Apply the model to each video
+    for video in os.listdir(VIDEOS_DIR):
 
-cap = cv2.VideoCapture(video_path)
-ret, frame = cap.read()
-H, W, _ = frame.shape
-out = cv2.VideoWriter(video_path_out, cv2.VideoWriter_fourcc(*'MP4V'), int(cap.get(cv2.CAP_PROP_FPS)), (W, H))
+        cap = cv2.VideoCapture(f'{VIDEOS_DIR}/{video}')
+        ret, frame = cap.read()
+        H, W, _ = frame.shape
+        out = cv2.VideoWriter(f'{VIDEOS_DIR}/{video.rsplit(".")[0]}_out.mp4', cv2.VideoWriter_fourcc(*'MP4V'),
+                              int(cap.get(cv2.CAP_PROP_FPS)), (W, H))
 
-model_path = os.path.join('.', 'runs', 'detect', 'train', 'weights', 'last.pt')
+        while True:
 
-# Load a model
-model = YOLO(model_path)  # load a custom model
+            results = model(frame)[0]
 
-threshold = 0.5
+            for result in results.boxes.data.tolist():
+                x1, y1, x2, y2, score, class_id = result
 
-class_name_dict = {0: 'pothole'}
+                if score > 0.5:
+                    cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 4)
+                    cv2.putText(frame, f'{score:.2f} - {class_id}', (int(x1), int(y1 - 10)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3, cv2.LINE_AA)
 
-while ret:
+            out.write(frame)
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-    results = model(frame)[0]
+        cap.release()
+        out.release()
+        cv2.destroyAllWindows()
 
-    for result in results.boxes.data.tolist():
-        x1, y1, x2, y2, score, class_id = result
 
-        if score > threshold:
-            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 4)
-            cv2.putText(frame, class_name_dict[int(class_id)].upper(), (int(x1), int(y1 - 10)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 255, 0), 3, cv2.LINE_AA)
-
-    out.write(frame)
-    ret, frame = cap.read()
-
-cap.release()
-out.release()
-cv2.destroyAllWindows()
+if __name__ == '__main__':
+    main()

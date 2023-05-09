@@ -12,14 +12,15 @@ RTSP_URL = os.getenv('RTSP_URL')
 
 
 @click.command()
-@click.option('--detect', type=click.Choice(['pothole']), required=True)
+@click.option('--detect', type=click.Choice(['pothole', 'puddle']), required=True)
 def main(detect):
     # Check for RTSP_URL environment variable
     if not RTSP_URL:
         print('Error: RTSP_URL environment variable not set (see README.md).')
 
     # Load the model
-    model = YOLO(f'./{detect}/{MODEL_PATH}')
+    # model = YOLO(f'./{detect}/{MODEL_PATH}')
+    model = YOLO('yolov8n.pt')
 
     # Connect to RTSP stream
     cap = cv2.VideoCapture(RTSP_URL)
