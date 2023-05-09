@@ -1,6 +1,6 @@
 from datetime import datetime
-
 from fastapi import APIRouter
+
 from ..database import Event
 from ..serializers.events import EventSerializer
 
@@ -23,6 +23,6 @@ async def get_events(type: str = None, source: str = None, location: str = None,
     return [EventSerializer(**event) for event in Event.find(query)]
 
 
-@router.get("/{id}")
+@router.get('/{id}')
 async def get_event(id: int):
-    return EventSerializer(Event.find_one({"id": id}))
+    return EventSerializer(Event.find_one({'id': id}))

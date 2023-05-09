@@ -33,7 +33,7 @@ def fetch_ti_here():
     # Aveiro
     lat = 40.64427
     lon = -8.64554
-    rad = 500  # meters
+    rad = 5000  # meters
 
     params = {
         'apiKey': API_KEY,

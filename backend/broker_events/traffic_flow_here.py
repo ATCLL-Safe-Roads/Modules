@@ -42,8 +42,8 @@ def get_segments(subsegments, shapes):
 
 
         msg = {
-            "jamFactor": jf,
-            "points": lp
+            "jam_factor": jf,
+            "geometry": lp
         }
 
         segments.append(msg)
@@ -56,7 +56,7 @@ def fetch_tf_here():
     # Aveiro
     lat = 40.63733
     lon = -8.64850
-    rad = 500  # meters
+    rad = 5000  # meters
 
     # these params -> https://developer.here.com/documentation/traffic-api/api-reference.html
     params = {
@@ -73,7 +73,7 @@ def fetch_tf_here():
             subSegments = flow['currentFlow']['subSegments']
             shapes = flow['location']['shape']['links']
             msg = {
-                "source": "HERE",
+                "source": "here",
                 "location": flow['location']['description'],
                 "avgspeed": flow['currentFlow']['speedUncapped'],
                 "segments": get_segments(subSegments, shapes),
@@ -89,11 +89,11 @@ def fetch_tf_here():
             else:
                 jf = 3.0
             s = {
-                "jamFactor": jf,
-                "points": flow['location']['shape']['links']
+                "jam_factor": jf,
+                "geometry": flow['location']['shape']['links']
             }
             msg = {
-                "source": "HERE",
+                "source": "here",
                 "location": flow['location']['description'],
                 "avgspeed": flow['currentFlow']['speedUncapped'],
                 "segments": [s],

@@ -2,7 +2,6 @@ from fastapi import APIRouter
 from pymongo.errors import ConnectionFailure
 from ..database import client, Event
 from datetime import datetime
-from ..serializers.eventSerializers import eventEntity
 
 router = APIRouter()
 
@@ -32,7 +31,7 @@ async def test_mongo2():
     )
     return "OK"
 
-@router.get("/testmongo3")
-async def test_mongo3():
-    event = eventEntity(Event.find_one({"type": "incident"}))
-    return event
+#@router.get("/testmongo3")
+#async def test_mongo3():
+#    event = eventEntity(Event.find_one({"type": "incident"}))
+#    return event
