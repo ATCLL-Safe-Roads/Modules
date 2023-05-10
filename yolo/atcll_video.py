@@ -19,8 +19,7 @@ def main(detect):
         print('Error: RTSP_URL environment variable not set (see README.md).')
 
     # Load the model
-    # model = YOLO(f'./{detect}/{MODEL_PATH}')
-    model = YOLO('yolov8n.pt')
+    model = YOLO(f'./{detect}/{MODEL_PATH}')
 
     # Connect to RTSP stream
     cap = cv2.VideoCapture(RTSP_URL)
