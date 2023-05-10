@@ -141,7 +141,7 @@ class Processing():
             return []
 
         flow = None
-        source = f"ATCLL Sensor SLP{postID}"
+        source = f"atcll"
         location = self.post_ids[postID]
         heading = "entry" if heading == 1 else "exit"
 
@@ -195,12 +195,20 @@ class Processing():
                 if location in i["properties"]["name"]:
                     coordinates += i["geometry"]["coordinates"]
 
+            coordinatesf = []
+
+            for c in coordinates:
+                t = {}
+                t["lat"] = c[1]
+                t["lng"] = c[0]
+                coordinatesf.append(t)
+
             segments = {
-                "points": coordinates,
                 "jamFactor": float(level),
+                "geometry": [{"points": coordinatesf}],
             }
 
-            flow = Flow(source, location, speed * 3.6, segments,
+            flow = Flow(source, location, speed * 3.6, [segments],
                         datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=+1))).__str__())
 
             self.active_alerts[f"{postID}:transit"] = copy.deepcopy(flow)
