@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -8,7 +10,7 @@ class EventPoint(BaseModel):
 
 
 class EventGeometry(BaseModel):
-    points: list[EventPoint]
+    points: List[EventPoint]
     length: float
 
 
@@ -19,7 +21,7 @@ class EventSerializer(BaseModel):
     sourceid: str
     description: str
     location: str
-    geometry: list[EventGeometry]
+    geometry: List[EventGeometry]
     start: datetime
     end: datetime
     timestamp: datetime

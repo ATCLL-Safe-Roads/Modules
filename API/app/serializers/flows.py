@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -8,12 +10,12 @@ class FlowPoint(BaseModel):
 
 
 class FlowGeometry(BaseModel):
-    points: list[FlowPoint]
+    points: List[FlowPoint]
     length: float
 
 
 class FlowSegment(BaseModel):
-    geometry: list[FlowGeometry]
+    geometry: List[FlowGeometry]
     jam_factor: float
 
 
@@ -22,5 +24,5 @@ class FlowSerializer(BaseModel):
     source: str
     location: str
     avgspeed: float
-    segments: list[FlowSegment]
+    segments: List[FlowSegment]
     timestamp: datetime
