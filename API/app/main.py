@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import here, testmongo, events, flows
+from app.routers import here, testmongo, events, flows, graphs
 from app.mqtt import mqtt
 from fastapi.openapi.utils import get_openapi
 
@@ -50,3 +50,4 @@ app.include_router(here.router, prefix="/here", tags=["here"])
 app.include_router(testmongo.router, prefix="/testmongo", tags=["testmongo"])
 app.include_router(events.router, prefix="/events", tags=["events"])
 app.include_router(flows.router, prefix="/flows", tags=["flows"])
+app.include_router(graphs.router, prefix='/graphs', tags=['graphs'])
