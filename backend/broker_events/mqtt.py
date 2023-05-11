@@ -33,6 +33,7 @@ class Consumer(object):
             self.client.subscribe(f"p{id}/jetson/camera/count")
             self.client.subscribe(f"p{id}/jetson/radar/traffic/1")
             self.client.subscribe(f"p{id}/jetson/radar/traffic/2")
+        self.client.subscribe(f'p33/jetson/radar')
         pass
 
     def on_message(self, client, userdata, msg):
@@ -59,6 +60,11 @@ class Consumer(object):
                     if flow:
                         print(flow)
                         Producer().publish(flow, topic="/flows")
+            elif msg.topic.endswith("jetson/radar"):
+                events = self.process.check_wrong_way(json.loads(msg.payload.decode("utf-8")))
+                for event in events:
+                    if event:
+                        Producer().publish(event, topic="/events")
         except:
             print("Error decoding message")
 
