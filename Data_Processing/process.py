@@ -37,6 +37,20 @@ class Flow():
         self.timestamp = timestamp
         Flow.counter += 1
 
+class Event():
+    counter = 0
+    def __init__(self, type, source, description, location, geometry, start, end, timestamp):
+        self.type = type
+        self.source = source
+        self.sourceid = Event.counter
+        self.description = description
+        self.location = location
+        self.geometry = geometry
+        self.start = start
+        self.end = end
+        self.timestamp = timestamp
+        Event.counter += 1
+
 
 class Processing():
     def __init__(self):
@@ -55,6 +69,8 @@ class Processing():
         self.data_gather = {}
         self.transit_counts = {id: 0 for id in self.post_ids}
         self.active_alerts = {}
+        self.last_centers = {}
+        self.count = {}
 
     def camera_count(self, msg, postID):
         class_count = {}
@@ -217,3 +233,101 @@ class Processing():
 
             return [json.dumps(flow.__dict__)]
         return []
+    
+    def check_wrong_way(self,message):
+
+        event = []
+
+        #Sentido Bombeiros -> Glicinias
+        p1 = (40.632451, -8.648471)
+        p2 = (40.631123, -8.648268)
+
+        #Sentido Glicinias -> Bombeiros
+        p3 = (40.632452, -8.648500)
+        p4 = (40.631359, -8.648343)
+
+        def bg(x):
+            return (p2[0] - p1[0])*(x[1] - p1[1]) - (x[0] - p1[0])*(p2[1] - p1[1])
+
+        def gb(x):
+            return (p4[0] - p3[0])*(x[1] - p3[1]) - (x[0] - p3[0])*(p4[1] - p3[1])
+
+        lat = message['latitude']
+        lon = message['longitude']
+        radarID = message['radarVehicleID']
+        heading = message['heading']
+
+        c = (lat,lon)
+
+        if radarID in self.last_centers:
+            last_x, last_y = self.last_centers[radarID]
+
+            if abs(last_x - lat) > 8.100000000155205e-05: 
+                if heading < 0:
+                    if bg(c) > 0 and last_x < lat: #Positivo
+                        print(f'car with id={radarID} driving in the wrong way')
+                        print(message)
+                        if radarID not in self.count:
+                            self.count[radarID] = 1
+                        else:
+                            self.count[radarID] += 1
+                    elif bg(c) < 0 and last_x > lat: #Negativo
+                        print(f'car with id={radarID} driving in the wrong way')
+                        print(message)
+                        if radarID not in self.count:
+                            self.count[radarID] = 1
+                        else:
+                            self.count[radarID] += 1
+                    else:
+                        if radarID in self.count:
+                            del self.count[radarID]
+                else:
+                    if gb(c) > 0 and last_x < lat: #Positivo
+                        print(f'car with id={radarID} driving in the wrong way')
+                        print(message)
+                        if radarID not in self.count:
+                            self.count[radarID] = 1
+                        else:
+                            self.count[radarID] += 1
+                    elif gb(c) < 0 and last_x > lat: #Negativo
+                        print(f'car with id={radarID} driving in the wrong way')
+                        print(message)
+                        if radarID not in self.count:
+                            self.count[radarID] = 1
+                        else:
+                            self.count[radarID] += 1
+                    else:
+                        if radarID in self.count:
+                            del self.count[radarID]
+
+                if radarID in self.count and self.count[radarID] > 5:
+                    print(f'car with id={radarID} driving in the wrong way 5 TIMES')
+
+                    ##self.type = type
+                    ##self.source = source
+                    ##self.sourceid = Event.counter
+                    ##self.description = description
+                    ##self.location = location
+                    ##self.geometry = geometry
+                    ##self.start = start
+                    ##self.end = end
+                    ##self.timestamp = timestamp
+
+                    date = datetime.datetime.now()
+
+                    print(date.replace(microsecond=0).isoformat().__str__() + "Z")
+
+                    date1 = date + datetime.timedelta(seconds=30)
+
+                    print(date1.replace(microsecond=0).isoformat().__str__() + "Z")
+
+                    e = Event("wrong_way", "atcll", "Wrong way", self.post_ids[33], {"lat":lat,"lng":lon}, date, date1, date)
+                    event.append(json.dumps(e.__dict__))
+
+                    del self.count[radarID]
+
+                self.last_centers[radarID] = (lat, lon)
+        else:
+            self.last_centers[radarID] = (lat, lon)
+
+        return event
