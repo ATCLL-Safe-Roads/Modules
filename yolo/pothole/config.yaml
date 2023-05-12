@@ -1,6 +1,0 @@
-path: C:/Users/joaoo/OneDrive - Universidade de Aveiro/UC/PI/Projeto/Repositorios/PI-Project/yolo/pothole/data
-train: images/train # Images to train (relative to 'path')
-val: images/valid # Images to validate (relative to 'path')
-
-names:
-  0: pothole
