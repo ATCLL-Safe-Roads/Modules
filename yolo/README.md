@@ -10,7 +10,13 @@ This module contains training data and scripts to support the development of YOL
   
   - `--detect` - model to execute on the frames (`pothole`).
 
-- `wrongway.py` - Connects to a remote camera using RTSP and tracks cars using YOLOv8n, to detect cars driving the wrong way based on an axis and their position.
+- `atcll_image.py` - Connects to a remove camera using RTSP, capturing frames at a given rate and saving them to an output folder.
+  
+  - `--n` - number of frames to capture.
+  
+  - `--rate` - interval between each captured frame.
+
+- `wrong_way.py` - Connects to a remote camera using RTSP and tracks cars using YOLOv8n, to detect cars driving the wrong way based on an axis and their position.
 
 ## Installation
 
@@ -23,7 +29,7 @@ This module contains training data and scripts to support the development of YOL
 
 Some scripts some environment variables to be set. It is recommended to add an `.env` file in the same directory as the script contaning the required variables.
 
-- `atcll_video.py` & `wrongway.py`
+- `atcll_image.py`, `atcll_video.py` & `wrong_way.py`
   
   - `RTSP_URL` - of the camera to connect to.
 

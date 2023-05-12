@@ -12,7 +12,7 @@ RTSP_URL = os.getenv('RTSP_URL')
 
 
 @click.command()
-@click.option('--detect', type=click.Choice(['pothole', 'puddle']), required=True)
+@click.option('--detect', type=click.Choice(['pothole']), required=True)
 def main(detect):
     # Check for RTSP_URL environment variable
     if not RTSP_URL:
