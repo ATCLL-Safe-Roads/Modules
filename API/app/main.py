@@ -51,8 +51,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(here.router, prefix="/here", tags=["here"])
-app.include_router(testmongo.router, prefix="/testmongo", tags=["testmongo"])
 app.include_router(events.router, prefix="/events", tags=["events"])
 app.include_router(flows.router, prefix="/flows", tags=["flows"])
 app.include_router(graphs.router, prefix='/graphs', tags=['graphs'])
