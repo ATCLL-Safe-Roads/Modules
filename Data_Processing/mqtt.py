@@ -1,12 +1,14 @@
-import paho.mqtt.client as mqtt
-import requests
 import json
+import os
+import paho.mqtt.client as mqtt
 import process
 
-HOST = 'atcll-data.nap.av.it.pt'
-PORT = 1884
+from dotenv import load_dotenv
 
-API_KEY = 'Zlw7LEfyrn8dHgcKyoQHDTDMMg8YmSNGWkvptwNS2xU'  # REPLACE WITH YOUR OWN
+load_dotenv()
+
+ATCLL_BROKER_HOST = os.getenv('ATCLL_BROKER_HOST')
+ATCLL_BROKER_PORT = os.getenv('ATCLL_BROKER_PORT')
 
 
 class Consumer(object):
@@ -24,11 +26,11 @@ class Consumer(object):
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
-        self.client.connect(HOST, PORT)
+        self.client.connect(ATCLL_BROKER_HOST, ATCLL_BROKER_PORT)
 
     def on_connect(self, client, userdata, flags, rc):
-        #print("Subscribing to /events")
-        #client.subscribe("/events")
+        # print("Subscribing to /events")
+        # client.subscribe("/events")
         for id in self.post_ids:
             self.client.subscribe(f"p{id}/jetson/camera/count")
             self.client.subscribe(f"p{id}/jetson/radar/traffic/1")
@@ -39,12 +41,13 @@ class Consumer(object):
     def on_message(self, client, userdata, msg):
         try:
             msg_decoded = json.loads(msg.payload.decode("utf-8"))
-            #print(msg.topic, msg_decoded)
+            # print(msg.topic, msg_decoded)
             if msg.topic.endswith("jetson/camera/count"):
                 postID = int(msg.topic.split("/")[0][1:])
                 count = self.process.camera_count(msg.payload.decode("utf-8"), postID)
                 self.person_count[postID] = count['person'] if 'person' in count.keys() else self.person_count[postID]
-                flows = self.process.check_for_traffic(postID, self.average_speeds[postID], self.car_count[postID], self.person_count[postID])
+                flows = self.process.check_for_traffic(postID, self.average_speeds[postID], self.car_count[postID],
+                                                       self.person_count[postID])
                 for flow in flows:
                     if flow:
                         Producer().publish(flow, topic="/flows")
@@ -55,7 +58,8 @@ class Consumer(object):
                 key = f"{postID}:{heading}"
                 self.average_speeds[key] = average_speed
                 self.car_count[key] = cars_count
-                flows = self.process.check_for_traffic(postID, self.average_speeds[key], self.car_count[key], self.person_count[postID], heading)
+                flows = self.process.check_for_traffic(postID, self.average_speeds[key], self.car_count[key],
+                                                       self.person_count[postID], heading)
                 for flow in flows:
                     if flow:
                         print(flow)
@@ -75,7 +79,7 @@ class Consumer(object):
 class Producer(object):
     def __init__(self):
         self.client = mqtt.Client()
-        self.client.connect(HOST, PORT)
+        self.client.connect(ATCLL_BROKER_HOST, ATCLL_BROKER_PORT)
 
     def publish(self, message, topic="/flows"):
         result = self.client.publish(topic, message, retain=True, qos=0)

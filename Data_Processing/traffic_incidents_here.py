@@ -1,10 +1,16 @@
+import os
+
 import mqtt
 import json
 import requests
-import datetime
 
-API_KEY = 'Zlw7LEfyrn8dHgcKyoQHDTDMMg8YmSNGWkvptwNS2xU'  # REPLACE WITH YOUR OWN
-INCIDENT_URL = 'https://data.traffic.hereapi.com/v7/incidents'
+from dotenv import load_dotenv
+
+load_dotenv()
+
+HERE_API_KEY = os.getenv('HERE_API_KEY')
+HERE_INCIDENT_URL = os.getenv('HERE_INCIDENT_URL')
+HERE_REV_GEOCODE_URL = os.getenv('HERE_REV_GEOCODE_URL')
 
 TYPE = {
     'accident': 'accident',
@@ -18,34 +24,33 @@ TYPE = {
 cache = []
 
 
-def get_location(lat,lon):
+def get_location(lat, lon):
     params = {
-        'apiKey': API_KEY,
+        'apiKey': HERE_API_KEY,
         'at': f'{lat},{lon}'
     }
-    r = requests.get(url='https://revgeocode.search.hereapi.com/v1/revgeocode', params=params)
+    r = requests.get(url=HERE_REV_GEOCODE_URL, params=params)
     rj = r.json()
     return rj['items'][0]['title']
 
 
 def fetch_ti_here():
-
     # Aveiro
     lat = 40.64427
     lon = -8.64554
     rad = 5000  # meters
 
     params = {
-        'apiKey': API_KEY,
+        'apiKey': HERE_API_KEY,
         'locationReferencing': 'shape',
         'in': f'circle:{lat},{lon};r={rad}'
     }
-    ti_here = requests.get(url=INCIDENT_URL, params=params).json()
+    ti_here = requests.get(url=HERE_INCIDENT_URL, params=params).json()
 
     if len(ti_here) != 0:
 
         for incident in ti_here["results"]:
-        
+
             if incident['incidentDetails']['type'] not in TYPE.keys():
                 continue
 
@@ -81,4 +86,4 @@ def fetch_ti_here():
                     print("Message published")
             else:
                 print("Message already in cache")
-            #return status
+            # return status

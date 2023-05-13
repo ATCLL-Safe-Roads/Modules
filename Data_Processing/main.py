@@ -17,19 +17,19 @@ if __name__ == "__main__":
     broker = Broker()
     broker.start()
 
-    while(True):
+    while True:
         # fetch incidents from HERE
         st = fetch_ti_here()
-        #if st == 0:
+        # if st == 0:
         #    print("HERE_ti - OK")
-        #else:
+        # else:
         #    print("HERE_ti - ERROR")
 
         ## fetch traffic flow from HERE
         st = fetch_tf_here()
-        #if st == 0:
+        # if st == 0:
         #    print("HERE_tf - OK")
-        #else:
+        # else:
         #    print("HERE_tf - ERROR")
         ## TODO - CHANGE TO MORE APPROPRIATE TIME
         time.sleep(10)
