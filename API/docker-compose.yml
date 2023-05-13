@@ -4,7 +4,7 @@ services:
     image: mongo:latest
     container_name: mongo
     env_file:
-      - ./.env
+      - .env
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -12,7 +12,7 @@ services:
     volumes:
       - mongo:/data/db
     ports:
-      - '6000:27017'
+      - ${MONGO_PORT}:27017
 
 volumes:
   mongo:

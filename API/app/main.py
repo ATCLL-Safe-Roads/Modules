@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.config import settings
-from app.routers import here, testmongo, events, flows, graphs
-from app.mqtt import mqtt
 from fastapi.openapi.utils import get_openapi
+
+from app.mqtt import mqtt
+from app.routers import here, testmongo, events, flows, graphs
 
 app = FastAPI()
 
@@ -12,7 +11,8 @@ app = FastAPI()
 
 mqtt.init_app(app)
 
-#Add OpenAPI tags
+
+# Add OpenAPI tags
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
@@ -26,15 +26,20 @@ def custom_openapi():
         "url": "https://atcll-data.nap.av.it.pt/static/img/logo.png"
     }
     # Add Description to parameter start in endpoint /events/get_events_filtered
-    openapi_schema["paths"]["/events/get_events_filtered"]["get"]["parameters"][3]["description"] = "Start date in format YYYY-MM-DD"
+    openapi_schema["paths"]["/events/get_events_filtered"]["get"]["parameters"][3][
+        "description"] = "Start date in format YYYY-MM-DD"
     # Add Description to parameter end in endpoint /events/get_events_filtered
-    openapi_schema["paths"]["/events/get_events_filtered"]["get"]["parameters"][4]["description"] = "End date in format YYYY-MM-DD"
+    openapi_schema["paths"]["/events/get_events_filtered"]["get"]["parameters"][4][
+        "description"] = "End date in format YYYY-MM-DD"
     # Add Description to parameter start in endpoint /flows/get_flows_filtered
-    openapi_schema["paths"]["/flows/get_flows_filtered"]["get"]["parameters"][1]["description"] = "Start date in format YYYY-MM-DD"
+    openapi_schema["paths"]["/flows/get_flows_filtered"]["get"]["parameters"][1][
+        "description"] = "Start date in format YYYY-MM-DD"
     # Add Description to parameter end in endpoint /flows/get_flows_filtered
-    openapi_schema["paths"]["/flows/get_flows_filtered"]["get"]["parameters"][2]["description"] = "End date in format YYYY-MM-DD"
+    openapi_schema["paths"]["/flows/get_flows_filtered"]["get"]["parameters"][2][
+        "description"] = "End date in format YYYY-MM-DD"
     app.openapi_schema = openapi_schema
     return app.openapi_schema
+
 
 app.openapi = custom_openapi
 

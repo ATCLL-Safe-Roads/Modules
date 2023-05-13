@@ -1,13 +1,11 @@
-from pymongo import mongo_client
 import pymongo
+
 from app.config import settings
 
-client = mongo_client.MongoClient(settings.DATABASE_URL)
+client = pymongo.mongo_client.MongoClient(settings.DATABASE_URL)
 print('Connected to MongoDB...')
 
-db = client[settings.MONGO_INITDB_DATABASE]
-
-# Add Here The Collections and The Constraints
+db = client[settings.MONGO_DATABASE]
 
 Event = db.events
 Flow = db.flows

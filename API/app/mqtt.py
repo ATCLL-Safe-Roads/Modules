@@ -1,18 +1,18 @@
+import json
+
+from datetime import datetime
 from fastapi_mqtt import FastMQTT, MQTTConfig
 
 from app.database import Event, Flow
-from datetime import datetime
-import json
+from app.config import settings
 
-HOST = 'atcll-data.nap.av.it.pt'
-PORT = 1884
-
-mqtt_config = MQTTConfig(host=HOST, port=PORT)
+mqtt_config = MQTTConfig(host=settings.ATCLL_BROKER_HOST, port=settings.ATCLL_BROKER_PORT)
 
 mqtt = FastMQTT(config=mqtt_config)
 
 ide = 0
 idf = 0
+
 
 @mqtt.on_connect()
 def connect(client, flags, rc, properties):
@@ -20,6 +20,7 @@ def connect(client, flags, rc, properties):
     mqtt.client.subscribe("/traffic-flow-here")
     mqtt.client.subscribe("/flows")
     print("Connected: ", client, flags, rc, properties)
+
 
 @mqtt.on_message()
 async def message(client, topic, payload, qos, properties):
