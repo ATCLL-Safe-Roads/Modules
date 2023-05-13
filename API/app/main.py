@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
 from app.mqtt import mqtt
-from app.routers import here, testmongo, events, flows, graphs
+from app.routers import events, flows, graphs
 
 app = FastAPI()
 
