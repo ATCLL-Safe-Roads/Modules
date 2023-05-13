@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ATCLL_BROKER_HOST = os.getenv('ATCLL_BROKER_HOST')
-ATCLL_BROKER_PORT = os.getenv('ATCLL_BROKER_PORT')
+ATCLL_BROKER_PORT = int(os.getenv('ATCLL_BROKER_PORT'))
 
 
 class Consumer(object):

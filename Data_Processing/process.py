@@ -3,6 +3,8 @@ import time
 import datetime
 import copy
 
+from structs import Flow, Event
+
 AVERAGE_SPEED_THRESHOLD = 8  # m/s
 NUMBER_OF_PEOPLE_THRESHOLD = 2
 NUMBER_OF_CARS_THRESHOLD = 5
@@ -26,33 +28,7 @@ def average_class_label_key(postID, class_label):
     return f"{postID}:average_{class_label}"
 
 
-class Flow():
-    counter = 0
-
-    def __init__(self, source, location, avgspeed, segments, timestamp):
-        self.source = source
-        self.location = location
-        self.avgspeed = avgspeed
-        self.segments = segments
-        self.timestamp = timestamp
-        Flow.counter += 1
-
-class Event():
-    counter = 0
-    def __init__(self, type, source, description, location, geometry, start, end, timestamp):
-        self.type = type
-        self.source = source
-        self.sourceid = Event.counter
-        self.description = description
-        self.location = location
-        self.geometry = geometry
-        self.start = start
-        self.end = end
-        self.timestamp = timestamp
-        Event.counter += 1
-
-
-class Processing():
+class Processing:
     def __init__(self):
         self.post_ids = {1: "Rua da Pega", 3: "Ponte da Dobadoura", 4: "Rotunda Monumento ao Marnoto e à Salineira",
                          10: "Avenida Dr. Lourenço Peixinho, cruzamento frente à Segurança social",
@@ -128,7 +104,7 @@ class Processing():
             self.data_gather[keys].append(f"{average_speed / count}:{current_time}") if count != 0 else \
                 self.data_gather[keys].append(f"0:{current_time}")
             self.data_gather[keyc].append(f"{(vehicleHeavy + vehicleLight):.0f}:{current_time}") if (
-                vehicleHeavy + vehicleLight) != 0 else \
+                                                                                                            vehicleHeavy + vehicleLight) != 0 else \
                 self.data_gather[keyc].append(f"0:{current_time}")
 
             # Store the vehicle average speed for each minute
@@ -233,45 +209,45 @@ class Processing():
 
             return [json.dumps(flow.__dict__)]
         return []
-    
-    def check_wrong_way(self,message):
+
+    def check_wrong_way(self, message):
 
         event = []
 
-        #Sentido Bombeiros -> Glicinias
+        # Sentido Bombeiros -> Glicinias
         p1 = (40.632451, -8.648471)
         p2 = (40.631123, -8.648268)
 
-        #Sentido Glicinias -> Bombeiros
+        # Sentido Glicinias -> Bombeiros
         p3 = (40.632452, -8.648500)
         p4 = (40.631359, -8.648343)
 
         def bg(x):
-            return (p2[0] - p1[0])*(x[1] - p1[1]) - (x[0] - p1[0])*(p2[1] - p1[1])
+            return (p2[0] - p1[0]) * (x[1] - p1[1]) - (x[0] - p1[0]) * (p2[1] - p1[1])
 
         def gb(x):
-            return (p4[0] - p3[0])*(x[1] - p3[1]) - (x[0] - p3[0])*(p4[1] - p3[1])
+            return (p4[0] - p3[0]) * (x[1] - p3[1]) - (x[0] - p3[0]) * (p4[1] - p3[1])
 
         lat = message['latitude']
         lon = message['longitude']
         radarID = message['radarVehicleID']
         heading = message['heading']
 
-        c = (lat,lon)
+        c = (lat, lon)
 
         if radarID in self.last_centers:
             last_x, last_y = self.last_centers[radarID]
 
-            if abs(last_x - lat) > 8.100000000155205e-05: 
+            if abs(last_x - lat) > 8.100000000155205e-05:
                 if heading < 0:
-                    if bg(c) > 0 and last_x < lat: #Positivo
+                    if bg(c) > 0 and last_x < lat:  # Positivo
                         print(f'car with id={radarID} driving in the wrong way')
                         print(message)
                         if radarID not in self.count:
                             self.count[radarID] = 1
                         else:
                             self.count[radarID] += 1
-                    elif bg(c) < 0 and last_x > lat: #Negativo
+                    elif bg(c) < 0 and last_x > lat:  # Negativo
                         print(f'car with id={radarID} driving in the wrong way')
                         print(message)
                         if radarID not in self.count:
@@ -282,14 +258,14 @@ class Processing():
                         if radarID in self.count:
                             del self.count[radarID]
                 else:
-                    if gb(c) > 0 and last_x < lat: #Positivo
+                    if gb(c) > 0 and last_x < lat:  # Positivo
                         print(f'car with id={radarID} driving in the wrong way')
                         print(message)
                         if radarID not in self.count:
                             self.count[radarID] = 1
                         else:
                             self.count[radarID] += 1
-                    elif gb(c) < 0 and last_x > lat: #Negativo
+                    elif gb(c) < 0 and last_x > lat:  # Negativo
                         print(f'car with id={radarID} driving in the wrong way')
                         print(message)
                         if radarID not in self.count:
@@ -321,7 +297,9 @@ class Processing():
 
                     print(date1.replace(microsecond=0).isoformat().__str__() + "Z")
 
-                    e = Event("wrong_way", "atcll", "Wrong way", self.post_ids[33], {"lat":lat,"lng":lon}, date, date1, date)
+                    e = Event("wrong_way", "atcll", "Wrong way", self.post_ids[33],
+                              [{'points': [{"lat": lat, "lng": lon}]}], date,
+                              date1, date)
                     event.append(json.dumps(e.__dict__))
 
                     del self.count[radarID]
