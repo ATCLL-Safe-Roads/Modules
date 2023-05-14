@@ -4,6 +4,7 @@ import paho.mqtt.client as mqtt
 import process
 
 from dotenv import load_dotenv
+from threading import Thread
 
 load_dotenv()
 
@@ -11,8 +12,9 @@ ATCLL_BROKER_HOST = os.getenv('ATCLL_BROKER_HOST')
 ATCLL_BROKER_PORT = int(os.getenv('ATCLL_BROKER_PORT'))
 
 
-class Consumer(object):
+class Consumer(Thread):
     def __init__(self):
+        Thread.__init__(self)
         # Variables
         self.post_ids = [1, 3, 4, 10, 11, 12, 14, 15, 18, 19, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 35, 36,
                          38, 39, 41, 37, 40, 44]
@@ -29,14 +31,11 @@ class Consumer(object):
         self.client.connect(ATCLL_BROKER_HOST, ATCLL_BROKER_PORT)
 
     def on_connect(self, client, userdata, flags, rc):
-        # print("Subscribing to /events")
-        # client.subscribe("/events")
         for id in self.post_ids:
             self.client.subscribe(f"p{id}/jetson/camera/count")
             self.client.subscribe(f"p{id}/jetson/radar/traffic/1")
             self.client.subscribe(f"p{id}/jetson/radar/traffic/2")
         self.client.subscribe(f'p33/jetson/radar')
-        pass
 
     def on_message(self, client, userdata, msg):
         try:
@@ -76,12 +75,12 @@ class Consumer(object):
         self.client.loop_forever()
 
 
-class Producer(object):
+class Producer:
     def __init__(self):
         self.client = mqtt.Client()
         self.client.connect(ATCLL_BROKER_HOST, ATCLL_BROKER_PORT)
 
-    def publish(self, message, topic="/flows"):
+    def publish(self, message, topic):
         result = self.client.publish(topic, message, retain=True, qos=0)
         status = result[0]
         return status
