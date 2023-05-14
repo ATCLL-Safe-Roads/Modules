@@ -3,7 +3,7 @@ import time
 from threading import Thread
 
 from pothole_service import PotholeService
-from utils import init_scheduler
+from scheduler import Scheduler
 from traffic_flow_here import fetch_tf_here
 from traffic_incidents_here import fetch_ti_here
 
@@ -35,18 +35,19 @@ def main():
                 37: (40.64088, -8.63959), 38: (40.64344, -8.63981), 39: (40.64551, -8.64249),
                 40: (40.64480, -8.64288), 41: (40.64550, -8.64597), 44: (40.64602, -8.65285)}
 
-    # Broker Consumer and Producer
+    # Consumer Thread
     consumer = mqtt.Consumer()
-    producer = mqtt.Producer()
-
-    # Execute Consumer
     consumer.start()
+
+    # Producer
+    producer = mqtt.Producer()
 
     # Pothole Service
     pothole_service = PotholeService(p_ids, p_names, p_points, producer)
 
-    # Initialize Scheduler
-    init_scheduler(pothole_service, fetch_ti_here, fetch_tf_here)
+    # Scheduler Thread
+    scheduler = Scheduler(pothole_service, fetch_ti_here, fetch_tf_here)
+    scheduler.start()
 
 
 if __name__ == '__main__':

@@ -1,5 +1,3 @@
-import schedule
-
 from numpy import array, zeros, fabs
 
 
@@ -102,9 +100,3 @@ def get_pixel_to_coordinates_table(p_id, w=640, h=360):
             lookup[l][c] = [result[0][0] / result[2][0], result[1][0] / result[2][0]]
 
     return lookup
-
-
-def init_scheduler(pothole_service, fetch_ti_here, fetch_tf_here):
-    schedule.every().day.at('13:00').do(pothole_service.check_potholes)
-    schedule.every().hour.do(fetch_ti_here)
-    schedule.every().hour.do(fetch_tf_here)
