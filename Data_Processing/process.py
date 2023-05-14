@@ -147,8 +147,7 @@ class Processing:
         location = self.post_ids[postID]
         heading = "entry" if heading == 1 else "exit"
 
-        print(
-            f"{location}:{heading} - Cars: {cars}, Avg Speed: {speed}m/s, People:{people}")
+        # print(f"{location}:{heading} - Cars: {cars}, Avg Speed: {speed}m/s, People:{people}")
 
         if speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD and people > NUMBER_OF_PEOPLE_THRESHOLD:
             self.transit_counts[postID] += 1
@@ -177,7 +176,7 @@ class Processing:
         else:
             self.transit_counts[postID] = 0
 
-        print(self.transit_counts[postID])
+        # print(self.transit_counts[postID])
 
         if self.transit_counts[postID] >= TRANSIT_COUNT_THRESHOLD:
             self.transit_counts[postID] = 0

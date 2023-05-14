@@ -138,8 +138,8 @@ class PotholeService:
                     description=f'Pothole detected near SLP with id {p_id} with a confidence of {100 * fd[1]:.2f}%.',
                     location=self.p_names[p_id],
                     geometry=[{'points': [{'lat': lat, 'lng': lng}]}],
-                    start=now_ts,
-                    end=now_ts + timedelta(days=1),
-                    timestamp=now_ts,
+                    start=str(now_ts.isoformat()),
+                    end=str((now_ts + timedelta(days=1)).isoformat()),
+                    timestamp=str(now_ts),
                 )
                 self.mqtt_producer.publish(json.dumps(event.__dict__), topic='/events')
