@@ -1,7 +1,6 @@
+import cv2
 import json
 import math
-
-import cv2
 import os
 
 from datetime import datetime, timedelta
@@ -15,7 +14,7 @@ from structs import Event
 from utils import get_pixel_to_coordinates_table
 
 CHECK_DURATION = 10  # seconds
-CONFIDENCE_THRESHOLD = 0
+CONFIDENCE_THRESHOLD = 0.7
 DISTANCE_THRESHOLD = 50  # pixels
 
 PATH = os.path.dirname(__file__)

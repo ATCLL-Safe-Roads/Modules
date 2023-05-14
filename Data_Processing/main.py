@@ -1,6 +1,4 @@
 import mqtt
-import time
-from threading import Thread
 
 from pothole_service import PotholeService
 from scheduler import Scheduler
