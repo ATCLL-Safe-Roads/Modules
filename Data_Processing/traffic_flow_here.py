@@ -78,7 +78,7 @@ def fetch_tf_here():
             shapes = flow['location']['shape']['links']
             msg = {
                 "source": "here",
-                "location": flow['location']['description'],
+                "location": flow['location'].get('description', ''),
                 "avgspeed": flow['currentFlow']['speedUncapped'],
                 "segments": get_segments(subSegments, shapes),
                 "timestamp": tf_here['sourceUpdated']
@@ -98,7 +98,7 @@ def fetch_tf_here():
             }
             msg = {
                 "source": "here",
-                "location": flow['location']['description'],
+                "location": flow['location'].get('description', ''),
                 "avgspeed": flow['currentFlow']['speedUncapped'],
                 "segments": [s],
                 "timestamp": tf_here['sourceUpdated']
@@ -111,7 +111,7 @@ def fetch_tf_here():
             # publish the data to the IT broker topic /traffic-flow-here
             producer = mqtt.Producer()
             # print(type(msg))
-            topic = "/traffic-flow-here"
+            topic = "/flows"
             status = 0  # 0 = success, 1 = failure
             status = producer.publish(json.dumps(msg, default=str), topic)
             if status == 0:

@@ -205,8 +205,8 @@ class Processing:
                 coordinatesf.append(t)
 
             segments = {
-                "jamFactor": float(level),
-                "geometry": [{"points": coordinatesf}],
+                "jam_factor": float(level),
+                "geometry": [{"points": coordinatesf, 'length': 0}],
             }
 
             flow = Flow(source, location, speed * 3.6, [segments],

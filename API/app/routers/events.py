@@ -10,8 +10,10 @@ router = APIRouter()
 @router.get('')
 async def get_events(type: str = None, source: str = None, location: str = None, start: str = None, end: str = None):
     # Sanitize start and end
-    start = start[:-1] if start[-1] == 'Z' else start
-    end = end[:-1] if end[-1] == 'Z' else end
+    if start:
+        start = start[:-1] if start[-1] == 'Z' else start
+    if end:
+        end = end[:-1] if end[-1] == 'Z' else end
 
     query = {}
     if type:

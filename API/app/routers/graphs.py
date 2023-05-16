@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter
 from random import Random
 
-from app.database import Event
+from app.database import Event, Flow
 from app.serializers.graphs import GraphSerializer
 
 router = APIRouter()
@@ -35,8 +35,10 @@ def get_labels(start: datetime, end: datetime):
 @router.get('')
 async def get_graphs(type: str = None, source: str = None, location: str = None, start: str = None, end: str = None):
     # Sanitize start and end
-    start = start[:-1] if start[-1] == 'Z' else start
-    end = end[:-1] if end[-1] == 'Z' else end
+    if start:
+        start = start[:-1] if start[-1] == 'Z' else start
+    if end:
+        end = end[:-1] if end[-1] == 'Z' else end
 
     # Convert start and end to datetime
     start_dt = datetime.fromisoformat(start) if start else datetime.now() - timedelta(weeks=1)
@@ -45,21 +47,20 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
     # Get labels for graph
     labels, hour_step = get_labels(start_dt, end_dt)
 
-    # Get events
-    query = {}
+    events_query = {}
     if type:
-        query['type'] = {'$in': type.split(',')}
+        events_query['type'] = {'$in': type.split(',')}
     if source:
-        query['source'] = {'$in': source.split(',')}
+        events_query['source'] = {'$in': source.split(',')}
     if location:
-        query['location'] = {'$regex': location, '$options': 'i'}
+        events_query['location'] = {'$regex': location, '$options': 'i'}
     if start:
-        query['end'] = {'$gte': start_dt}
+        events_query['end'] = {'$gte': start_dt}
     if end:
-        query['start'] = {'$lte': end_dt}
-    events = Event.find(query)
+        events_query['start'] = {'$lte': end_dt}
+    events = Event.find(events_query)
 
-    # Get events data for graph
+    # Get event data for graph
     events_data = {}
     for event in events:
         # Initialize data for event type
@@ -70,12 +71,30 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
             if event['start'] <= labels[i] < event['end'] + timedelta(hours=hour_step):
                 events_data[event['type']][i] += 1
 
-    rand = Random()
+    rand = Random()  # TODO: remove
 
-    # Get flow data for graph - TODO: Get real data
-    flow_data = {}
-    flow_data['real'] = [rand.random() for _ in range(len(labels))]
-    flow_data['predict'] = [rand.random() for _ in range(len(labels))]
+    flows_query = {}
+    if source:
+        flows_query['source'] = {'$eq': source}
+    if start:
+        flows_query['timestamp'] = {'$gte': datetime.fromisoformat(start)}
+    if end:
+        flows_query['timestamp'] = {'$lte': datetime.fromisoformat(end)}
+    flows = Flow.find(flows_query)
+
+    # Get flow data for graph
+    flow_data = {
+        'real': [[] for _ in range(len(labels))],
+        'predict': [rand.random() for _ in range(len(labels))]  # TODO: change to predict
+    }
+    for flow in flows:
+        # Distribute flow in labels
+        for i in range(len(labels)):
+            if flow['timestamp'] <= labels[i] < flow['timestamp'] + timedelta(hours=hour_step):
+                flow_data['real'][i].extend([segment['jam_factor'] for segment in flow['segments']])
+    # Average flow in each label
+    flow_data['real'] = [sum(jam_factors) / len(jam_factors)
+                         if len(jam_factors) > 0 else 0 for jam_factors in flow_data['real']]
 
     # Get weather data for graph - TODO: Get real data
     weather_data = {}
