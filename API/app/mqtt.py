@@ -5,18 +5,15 @@ from fastapi_mqtt import FastMQTT, MQTTConfig
 
 from app.database import Event, Flow
 from app.config import settings
+from app.schemas import FlowSchema, EventSchema
 
 mqtt_config = MQTTConfig(host=settings.ATCLL_BROKER_HOST, port=settings.ATCLL_BROKER_PORT)
 mqtt = FastMQTT(config=mqtt_config)
-
-ide = 0
-idf = 0
 
 
 @mqtt.on_connect()
 def connect(client, flags, rc, properties):
     mqtt.client.subscribe('/events')
-    mqtt.client.subscribe('/traffic-flow-here')
     mqtt.client.subscribe('/flows')
     print('INFO: Connected to MQTT Broker')
 
@@ -24,7 +21,6 @@ def connect(client, flags, rc, properties):
 @mqtt.on_message()
 async def message(client, topic, payload, qos, properties):
     if topic == '/events':
-        global ide
         if properties['retain'] == 1:
             return
         r = payload.decode()
@@ -33,28 +29,19 @@ async def message(client, topic, payload, qos, properties):
         j['start'] = s
         e = datetime.strptime(j['end'], '%Y-%m-%dT%H:%M:%S%z')
         j['end'] = e
-        j['id'] = ide
-        ide += 1
-        Event.insert_one(j)
-    if topic == '/traffic-flow-here':
-        global idf
+        t = datetime.strptime(j['timestamp'], '%Y-%m-%dT%H:%M:%S%z')
+        j['timestamp'] = t
+        # Insert only if it doesn't exist
+        if not Event.count_documents(dict(EventSchema(**j))):
+            Event.insert_one(j)
+    if topic == '/flows':
         if properties['retain'] == 1:
             return
         r = payload.decode()
         j = json.loads(r)
         t = datetime.strptime(j['timestamp'], '%Y-%m-%dT%H:%M:%S%z')
         j['timestamp'] = t
-        j['id'] = idf
-        idf += 1
-        Flow.insert_one(j)
-    if topic == '/flows':
-        if properties['retain'] == 1:
-            return
-        r = payload.decode()
-        j = json.loads(r)
-        t = datetime.strptime(j['timestamp'], '%Y-%m-%d %H:%M:%S.%f%z')
-        j['timestamp'] = t
-        j['id'] = idf
-        idf += 1
-        Flow.insert_one(j)
+        # Insert only if it doesn't exist
+        if not Flow.count_documents(dict(FlowSchema(**j))):
+            Flow.insert_one(j)
     print(f'INFO: Received message on topic {topic} {payload.decode()[:100]}')

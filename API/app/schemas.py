@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 
 class EventSchema(BaseModel):
-    id: int
     type: str
     source: str
     sourceid: str
@@ -20,7 +19,6 @@ class EventSchema(BaseModel):
 
 
 class FlowSchema(BaseModel):
-    id: int
     source: str
     location: str
     avgspeed: float

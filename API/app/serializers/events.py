@@ -15,7 +15,7 @@ class EventGeometry(BaseModel):
 
 
 class EventSerializer(BaseModel):
-    id: str
+    _id: str
     type: str
     source: str
     sourceid: str

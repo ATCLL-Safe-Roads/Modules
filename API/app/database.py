@@ -9,6 +9,3 @@ db = client[settings.MONGO_DATABASE]
 
 Event = db.events
 Flow = db.flows
-
-Event.create_index([("id", pymongo.ASCENDING)], unique=True)
-Flow.create_index([("id", pymongo.ASCENDING)], unique=True)

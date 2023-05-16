@@ -20,7 +20,7 @@ class FlowSegment(BaseModel):
 
 
 class FlowSerializer(BaseModel):
-    id: str
+    _id: str
     source: str
     location: str
     avgspeed: float
