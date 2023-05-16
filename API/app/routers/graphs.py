@@ -1,7 +1,10 @@
+import requests
+
 from datetime import datetime, timedelta
 from fastapi import APIRouter
 from random import Random
 
+from app.config import settings
 from app.database import Event, Flow
 from app.serializers.graphs import GraphSerializer
 
@@ -47,6 +50,8 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
     # Get labels for graph
     labels, hour_step = get_labels(start_dt, end_dt)
 
+    # Events
+
     events_query = {}
     if type:
         events_query['type'] = {'$in': type.split(',')}
@@ -60,7 +65,6 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
         events_query['start'] = {'$lte': end_dt}
     events = Event.find(events_query)
 
-    # Get event data for graph
     events_data = {}
     for event in events:
         # Initialize data for event type
@@ -73,6 +77,8 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
 
     rand = Random()  # TODO: remove
 
+    # Flow
+
     flows_query = {}
     if source:
         flows_query['source'] = {'$eq': source}
@@ -82,7 +88,6 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
         flows_query['timestamp'] = {'$lte': datetime.fromisoformat(end)}
     flows = Flow.find(flows_query)
 
-    # Get flow data for graph
     flow_data = {
         'real': [[] for _ in range(len(labels))],
         'predict': [rand.random() for _ in range(len(labels))]  # TODO: change to predict
@@ -96,9 +101,21 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
     flow_data['real'] = [sum(jam_factors) / len(jam_factors)
                          if len(jam_factors) > 0 else 0 for jam_factors in flow_data['real']]
 
-    # Get weather data for graph - TODO: Get real data
-    weather_data = {}
-    weather_data['temperature'] = [rand.random() for _ in range(len(labels))]
-    weather_data['humidity'] = [rand.random() for _ in range(len(labels))]
+    # Weather
+
+    weather_param = {
+        'appid': settings.OPENWEATHER_API_KEY,
+        'units': 'metric',
+        'lat': 40.64427,
+        'lon': -8.64554,
+        'start': int(datetime.timestamp(start_dt)),
+        'cnt': len(labels)
+    }
+    weather = requests.get(url=settings.OPENWEATHER_HISTORY_URL, params=weather_param).json()
+
+    weather_data = {
+        'temperature': [entry['main']['temp'] for entry in weather['list']],
+        'humidity': [entry['main']['humidity'] for entry in weather['list']]
+    }
 
     return GraphSerializer(labels=labels, events=events_data, flow=flow_data, weather=weather_data)
