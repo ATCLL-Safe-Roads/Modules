@@ -103,19 +103,27 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
 
     # Weather
 
-    weather_param = {
-        'appid': settings.OPENWEATHER_API_KEY,
-        'units': 'metric',
-        'lat': 40.64427,
-        'lon': -8.64554,
-        'start': int(datetime.timestamp(start_dt)),
-        'cnt': len(labels)
-    }
-    weather = requests.get(url=settings.OPENWEATHER_HISTORY_URL, params=weather_param).json()
-
     weather_data = {
-        'temperature': [entry['main']['temp'] for entry in weather['list']],
-        'humidity': [entry['main']['humidity'] for entry in weather['list']]
+        'temperature': [[] for _ in range(len(labels))],
+        'humidity': [[] for _ in range(len(labels))]
     }
+
+    # TODO: Don't call for every label
+    for i in range(len(labels)):
+        weather_ts = start_dt + timedelta(hours=i * hour_step)
+        if hour_step == 24:
+            weather_ts.replace(hour=12, minute=0, second=0, microsecond=0)
+        weather_param = {
+            'appid': settings.OPENWEATHER_API_KEY,
+            'units': 'metric',
+            'lat': 40.64427,
+            'lon': -8.64554,
+            'start': int(datetime.timestamp(weather_ts)),
+            'cnt': 1
+        }
+        weather = requests.get(url=settings.OPENWEATHER_HISTORY_URL, params=weather_param).json()
+
+        weather_data['temperature'][i] = weather['list'][0]['main']['temp'] if 'cod' in weather and weather['cod'] == '200' else 0
+        weather_data['humidity'][i] = weather['list'][0]['main']['humidity'] if 'cod' in weather and weather['cod'] == '200' else 0
 
     return GraphSerializer(labels=labels, events=events_data, flow=flow_data, weather=weather_data)
