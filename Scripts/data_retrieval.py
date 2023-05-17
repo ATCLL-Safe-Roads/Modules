@@ -147,21 +147,21 @@ if __name__ == "__main__":
     lon = -8.64554
 
     # open files
-    # file1 = open("out/data.json", "w")
-    # file_csv = open("out/data_time_vehicles.csv", "w", newline='')
-    # file_ow = open("out/data_ow.json", "w")
+    file1 = open("out/data.json", "w")
+    file_csv = open("out/data_time_vehicles.csv", "w", newline='')
+    file_ow = open("out/data_ow.json", "w")
     file_ow_join = open("out/data_ow_join.json", "w")
 
-    # csv_writer = csv.writer(file_csv)
-    # csv_writer.writerow(["timestamp", "vehicle"])
+    csv_writer = csv.writer(file_csv)
+    csv_writer.writerow(["timestamp", "vehicle"])
 
-    # data = get_data(start, end, day)
+    data = get_data(start, end, day)
     data_ow = get_data_ow(1655251200, end/1000)
-    # json.dump(data_ow, file_ow, indent=4)
+    json.dump(data_ow, file_ow, indent=4)
 
-    # file1.close()
-    # file_csv.close()
-    # file_ow.close()
+    file1.close()
+    file_csv.close()
+    file_ow.close()
 
     file_csv_read = open("out/data_time_vehicles.csv", "r")
 
