@@ -6,11 +6,10 @@ import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from threading import Thread
-from typing import Set, Dict, List, Tuple
+from typing import Set, Dict, Tuple
 from ultralytics import YOLO
 
 from mqtt import Producer
-from structs import Event
 from utils import get_pixel_to_coordinates_table
 
 CHECK_DURATION = 10  # seconds
@@ -124,14 +123,17 @@ class PotholeService:
                 lat, lng = self.p_ptc_tables[p_id][fd[0][0]][fd[0][1]] \
                     if self.p_ptc_tables[p_id] else self.p_points[p_id]
                 now_ts = datetime.now()
-                event = Event(
-                    type='pothole',
-                    source='atcll',
-                    description=f'Pothole detected near SLP with id {p_id} with a confidence of {100 * fd[1]:.2f}%.',
-                    location=self.p_names[p_id],
-                    geometry=[{'points': [{'lat': lat, 'lng': lng}]}],
-                    start=str(now_ts.isoformat()),
-                    end=str((now_ts + timedelta(days=1)).isoformat()),
-                    timestamp=str(now_ts),
-                )
-                self.mqtt_producer.publish(json.dumps(event.__dict__), topic='/events')
+                msg = {
+                    'type': 'pothole',
+                    'source': 'atcll',
+                    'sourceid': '0',
+                    'description': f'Pothole detected near SLP with id {p_id} with a confidence of {100 * fd[1]:.2f}%.',
+                    'location': self.p_names[p_id],
+                    'geometry': [{'points': [{'lat': lat, 'lng': lng}]}],
+                    'start': str(now_ts.isoformat()),
+                    'end': str((now_ts + timedelta(days=1)).isoformat()),
+                    'timestamp': str(now_ts),
+                }
+                events_status = self.mqtt_producer.publish(json.dumps(msg).encode('utf-8'), '/events')
+
+                print(f'INFO: Published pothole event from ATCLL - events={"OK" if events_status == 0 else "ERROR"}')

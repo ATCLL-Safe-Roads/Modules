@@ -1,10 +1,8 @@
-import mqtt
 from here_api_service import HereApiService
-
+from mqtt import Consumer, Producer
 from pothole_service import PotholeService
+from process_service import ProcessService
 from scheduler import Scheduler
-from traffic_flow_here import fetch_tf_here
-from traffic_incidents_here import fetch_ti_here
 
 
 def main():
@@ -39,18 +37,21 @@ def main():
                 37: (40.64088, -8.63959), 38: (40.64344, -8.63981), 39: (40.64551, -8.64249),
                 40: (40.64480, -8.64288), 41: (40.64550, -8.64597), 44: (40.64602, -8.65285)}
 
-    # Consumer Thread
-    consumer = mqtt.Consumer()
-    consumer.start()
-
     # Producer
-    producer = mqtt.Producer()
+    mqtt_producer = Producer()
+
+    # Process Service
+    process_service = ProcessService(p_ids, p_names, p_points, mqtt_producer)
+
+    # Consumer Thread
+    mqtt_consumer = Consumer(process_service)
+    mqtt_consumer.start()
 
     # HERE API Service
-    here_api_service = HereApiService(latitude, longitude, radius, producer)
+    here_api_service = HereApiService(latitude, longitude, radius, mqtt_producer)
 
     # Pothole Service
-    pothole_service = PotholeService(p_ids, p_names, p_points, producer)
+    pothole_service = PotholeService(p_ids, p_names, p_points, mqtt_producer)
 
     # Scheduler Thread
     scheduler = Scheduler(here_api_service, pothole_service)

@@ -3,7 +3,7 @@ import time
 import datetime
 import copy
 
-from structs import Flow, Event
+from mqtt import Producer
 
 AVERAGE_SPEED_THRESHOLD = 8  # m/s
 NUMBER_OF_PEOPLE_THRESHOLD = 2
@@ -28,44 +28,31 @@ def average_class_label_key(postID, class_label):
     return f"{postID}:average_{class_label}"
 
 
-class Processing:
-    def __init__(self):
-        self.post_ids = {1: "Rua da Pega", 3: "Ponte da Dobadoura", 4: "Rotunda Monumento ao Marnoto e à Salineira",
-                         10: "Avenida Dr. Lourenço Peixinho, cruzamento frente à Segurança social",
-                         11: "Avenida Dr. Lourenço Peixinho, cruzamento com a Rua do Eng. Oudinot",
-                         12: "Avenida Dr. Lourenço Peixinho, entroncamento com a Rua Luis G. Carvalho",
-                         14: "Avenida Dr. Lourenço Peixinho, entroncamento com a Rua Luis G. Carvalho",
-                         15: "Cais de São Roque", 18: "Rua Combatentes da Grande Guerra",
-                         19: "Parque dos Remadores Olímpicos", 21: "Rotunda do Oita", 22: "Cais da Fonte Nova",
-                         23: "Rotunda do Hospital", 24: "Quiosque ao lado do Hospital", 25: "Escola da Glória",
-                         27: "Sé", 28: "José Estevão", 29: "S. Martinho II", 30: "Avenida 25 de Abril",
-                         31: " Dr. Mario Sacramento II", 32: "Convivio", 33: "Rua Doutor Mário Sacramento",
-                         35: "Avenida da Universidade", 36: "Rotunda do Pingo Doce", 38: "Parque da CP",
-                         39: "Rotunda de Esgueira", 41: "Quartel I", 37: "Rotunda Forca", 40: "Quartel II", 44: "Ria"}
-        self.p_points = {1: (40.63476, -8.66038), 3: (40.64074, -8.65705), 4: (40.64154, -8.65802),
-                         10: (40.64283, -8.64828), 11: (40.64310, -8.64675), 12: (40.64330, -8.64427),
-                         14: (40.64237, -8.65064), 15: (40.64416, -8.65616), 18: (40.63970, -8.65295),
-                         19: (40.64339, -8.65847), 21: (40.64244, -8.64628), 22: (40.63972, -8.64352),
-                         23: (40.63475, -8.65592), 24: (40.63319, -8.65590), 25: (40.63693, -8.65324),
-                         27: (40.63946, -8.64960), 28: (40.63733, -8.64850), 29: (40.63646, -8.64986),
-                         30: (40.63605, -8.64657), 31: (40.63609, -8.64438), 32: (40.63443, -8.64882),
-                         33: (40.63245, -8.64859), 35: (40.63028, -8.65423), 36: (40.64121, -8.64286),
-                         37: (40.64088, -8.63959), 38: (40.64344, -8.63981), 39: (40.64551, -8.64249),
-                         40: (40.64480, -8.64288), 41: (40.64550, -8.64597), 44: (40.64602, -8.65285)}
+class ProcessService:
+    def __init__(self, p_ids, p_names, p_points, mqtt_producer: Producer):
+        self.p_ids = p_ids
+        self.p_names = p_names
+        self.p_points = p_points
+        self.mqtt_producer = mqtt_producer
+
+        self.average_speeds = {p_id: 0 for p_id in p_ids}
+        self.car_count = {p_id: 0 for p_id in self.p_ids}
+        self.person_count = {p_id: 0 for p_id in self.p_ids}
+
         self.data_gather = {}
-        self.transit_counts = {id: 0 for id in self.post_ids}
+        self.transit_counts = {id: 0 for id in self.p_names}
         self.active_alerts = {}
         self.last_centers = {}
         self.count = {}
 
-    def camera_count(self, msg, postID):
+    def camera_count(self, msg, p_id):
         class_count = {}
         camera_response = json.loads(msg)
 
         if camera_response != []:
             class_label = camera_response['classLabel']
             if class_label in ['person']:
-                key = average_class_label_key(postID, class_label)
+                key = average_class_label_key(p_id, class_label)
                 if key not in self.data_gather.keys():
                     self.data_gather[key] = []
                 class_count[class_label] = camera_response['classCount']
@@ -81,16 +68,16 @@ class Processing:
                         sum += float(speed)
                     self.data_gather[key] = [
                         f"{sum / len(self.data_gather[key])}:{time.time()}"]
-        return class_count
+        self.person_count[p_id] = class_count['person'] if 'person' in class_count else self.person_count[p_id]
 
     '''Process the radar traffic data'''
 
-    def radar_traffic(self, msg, postID, heading=0):
+    def radar_traffic(self, msg, p_id, heading=0):
         radar_response = json.loads(msg)
 
         if radar_response != []:
-            keys = average_speed_key(postID, heading)
-            keyc = average_car_key(postID, heading)
+            keys = average_speed_key(p_id, heading)
+            keyc = average_car_key(p_id, heading)
             if keys not in self.data_gather.keys():
                 self.data_gather[keys] = []
             if keyc not in self.data_gather.keys():
@@ -135,56 +122,62 @@ class Processing:
                     f"{sum / len(self.data_gather[keyc])}:{time.time()}"]
 
             if count != 0:
-                return average_speed / count, vehicleHeavy + vehicleLight
-            return average_speed, vehicleHeavy + vehicleLight
+                self.average_speeds[f'{p_id}:{heading}'] = average_speed / count
+                self.car_count[f'{p_id}:{heading}'] = vehicleHeavy + vehicleLight
+            self.average_speeds[f'{p_id}:{heading}'] = average_speed
+            self.car_count[f'{p_id}:{heading}'] = vehicleHeavy + vehicleLight
 
-    def check_for_traffic(self, postID, speed=0, cars=0, people=0, heading=0):
+    def check_for_traffic(self, p_id, heading=None):
+        speed = self.average_speeds[p_id] if not heading else self.average_speeds[f'{p_id}:{heading}']
+        cars = self.car_count[p_id] if not heading else self.car_count[f'{p_id}:{heading}']
+        people = self.person_count[p_id] if not heading else self.person_count[f'{p_id}:{heading}']
+
         if speed == 0 or cars == 0:
             return []
 
         flow = None
         source = f"atcll"
-        location = self.post_ids[postID]
+        location = self.p_names[p_id]
         heading = "entry" if heading == 1 else "exit"
 
         # print(f"{location}:{heading} - Cars: {cars}, Avg Speed: {speed}m/s, People:{people}")
 
         if speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD and people > NUMBER_OF_PEOPLE_THRESHOLD:
-            self.transit_counts[postID] += 1
+            self.transit_counts[p_id] += 1
             print(
-                f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
+                f"Instance {self.transit_counts[p_id]} of Traffic Detected at {location}")
             description = f"There is a high amount of traffic at the moment in {location} {heading}"
             level = 3
         elif speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD / 1.5 and people > NUMBER_OF_PEOPLE_THRESHOLD * 1.5:
-            self.transit_counts[postID] += 1
+            self.transit_counts[p_id] += 1
             print(
-                f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
+                f"Instance {self.transit_counts[p_id]} of Traffic Detected at {location}")
             description = f"There is some traffic at the moment in {location} {heading}"
             level = 1
         elif speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD * 1.5 and people > NUMBER_OF_PEOPLE_THRESHOLD / 2:
-            self.transit_counts[postID] += 1
+            self.transit_counts[p_id] += 1
             print(
-                f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
+                f"Instance {self.transit_counts[p_id]} of Traffic Detected at {location}")
             description = f"There is some traffic at the moment in {location} {heading}"
             level = 2
         elif speed < AVERAGE_SPEED_THRESHOLD and cars > NUMBER_OF_CARS_THRESHOLD * 1.2:
-            self.transit_counts[postID] += 1
+            self.transit_counts[p_id] += 1
             print(
-                f"Instance {self.transit_counts[postID]} of Traffic Detected at {location}")
+                f"Instance {self.transit_counts[p_id]} of Traffic Detected at {location}")
             description = f"There is some traffic at the moment in {location} {heading}"
             level = 1
         else:
-            self.transit_counts[postID] = 0
+            self.transit_counts[p_id] = 0
 
         # print(self.transit_counts[postID])
 
-        if self.transit_counts[postID] >= TRANSIT_COUNT_THRESHOLD:
-            self.transit_counts[postID] = 0
+        if self.transit_counts[p_id] >= TRANSIT_COUNT_THRESHOLD:
+            self.transit_counts[p_id] = 0
 
             '''Don't send alert if it has already been sent in the last <ALERTS_TIME_TO_LIVE> seconds'''
-            if f"{postID}:transit" in self.active_alerts.keys() and time.mktime(
-                    self.active_alerts[f"{postID}:transit"].timestamp.timetuple()) > time.time() - ALERTS_TIME_TO_LIVE:
-                self.active_alerts[f"{postID}:transit"].timestamp = datetime.datetime.now(datetime.timezone(
+            if f"{p_id}:transit" in self.active_alerts.keys() and time.mktime(
+                    self.active_alerts[f"{p_id}:transit"].timestamp.timetuple()) > time.time() - ALERTS_TIME_TO_LIVE:
+                self.active_alerts[f"{p_id}:transit"].timestamp = datetime.datetime.now(datetime.timezone(
                     datetime.timedelta(hours=+1)))  # reset the timer to stay with the alert for another 30 minutes
                 return []
 
@@ -212,16 +205,17 @@ class Processing:
             flow = Flow(source, location, speed * 3.6, [segments],
                         datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=+1))).__str__())
 
-            self.active_alerts[f"{postID}:transit"] = copy.deepcopy(flow)
-            self.active_alerts[f"{postID}:transit"].timestamp = datetime.datetime.now(
+            self.active_alerts[f"{p_id}:transit"] = copy.deepcopy(flow)
+            self.active_alerts[f"{p_id}:transit"].timestamp = datetime.datetime.now(
                 datetime.timezone(datetime.timedelta(hours=+1)))
 
-            return [json.dumps(flow.__dict__)]
-        return []
+            for flow in [json.dumps(flow.__dict__)]:
+                if flow:
+                    self.mqtt_producer.publish(flow, '/flows')
 
     def check_wrong_way(self, message):
 
-        event = []
+        events = []
 
         # Sentido Bombeiros -> Glicinias
         p1 = (40.632451, -8.648471)
@@ -288,16 +282,6 @@ class Processing:
                 if radarID in self.count and self.count[radarID] > 5:
                     print(f'car with id={radarID} driving in the wrong way 5 TIMES')
 
-                    ##self.type = type
-                    ##self.source = source
-                    ##self.sourceid = Event.counter
-                    ##self.description = description
-                    ##self.location = location
-                    ##self.geometry = geometry
-                    ##self.start = start
-                    ##self.end = end
-                    ##self.timestamp = timestamp
-
                     date = datetime.datetime.now()
 
                     print(date.replace(microsecond=0).isoformat().__str__() + "Z")
@@ -306,10 +290,10 @@ class Processing:
 
                     print(date1.replace(microsecond=0).isoformat().__str__() + "Z")
 
-                    e = Event("wrong_way", "atcll", "Wrong way", self.post_ids[33],
+                    e = Event("wrong_way", "atcll", "Wrong way", self.p_names[33],
                               [{'points': [{"lat": lat, "lng": lon}]}], date,
                               date1, date)
-                    event.append(json.dumps(e.__dict__))
+                    events.append(json.dumps(e.__dict__))
 
                     del self.count[radarID]
 
@@ -317,4 +301,6 @@ class Processing:
         else:
             self.last_centers[radarID] = (lat, lon)
 
-        return event
+        for event in events:
+            if event:
+                self.mqtt_producer.publish(event, '/events')
