@@ -23,13 +23,6 @@ load_dotenv(os.path.join(PATH, '', '.env'))
 
 
 class PotholeService:
-    model: YOLO
-    mqtt_producer: Producer
-    p_ids: Set[int]
-    p_names: Dict[int, str]
-    p_points: Dict[int, Tuple[float, float]]
-    p_ptc_tables: Dict[int, List[List[List[float]]]]
-    p_rtsp_urls: Dict[int, str]
 
     def __init__(self, p_ids: Set[int], p_names: Dict[int, str], p_points: Dict[int, Tuple[float, float]],
                  mqtt_producer: Producer):

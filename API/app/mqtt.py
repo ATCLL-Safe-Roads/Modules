@@ -31,8 +31,11 @@ async def message(client, topic, payload, qos, properties):
         j['end'] = e
         t = datetime.strptime(j['timestamp'], '%Y-%m-%dT%H:%M:%S%z')
         j['timestamp'] = t
+        # Replace if sourceid matches
+        if Event.count_documents({'source': 'here', 'sourceid': j['sourceid']}):
+            Event.replace_one({'source': 'here', 'sourceid': j['sourceid']}, j)
         # Insert only if it doesn't exist
-        if not Event.count_documents(dict(EventSchema(**j))):
+        elif not Event.count_documents(dict(EventSchema(**j))):
             Event.insert_one(j)
     if topic == '/flows':
         if properties['retain'] == 1:

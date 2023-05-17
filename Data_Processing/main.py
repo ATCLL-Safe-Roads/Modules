@@ -1,4 +1,5 @@
 import mqtt
+from here_api_service import HereApiService
 
 from pothole_service import PotholeService
 from scheduler import Scheduler
@@ -7,6 +8,11 @@ from traffic_incidents_here import fetch_ti_here
 
 
 def main():
+    # Aveiro Information
+    latitude = 40.63733
+    longitude = -8.64850
+    radius = 5000  # meters
+
     # SLP Information
     p_ids = {1, 3, 4, 10, 11, 12, 14, 15, 18, 19, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 39,
              40, 41, 44}
@@ -40,11 +46,14 @@ def main():
     # Producer
     producer = mqtt.Producer()
 
+    # HERE API Service
+    here_api_service = HereApiService(latitude, longitude, radius, producer)
+
     # Pothole Service
     pothole_service = PotholeService(p_ids, p_names, p_points, producer)
 
     # Scheduler Thread
-    scheduler = Scheduler(pothole_service, fetch_ti_here, fetch_tf_here)
+    scheduler = Scheduler(here_api_service, pothole_service)
     scheduler.start()
 
 
