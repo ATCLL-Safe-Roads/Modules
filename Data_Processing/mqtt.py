@@ -6,7 +6,6 @@ from json import JSONDecodeError
 from threading import Thread
 
 from dotenv import load_dotenv
-from process_service import ProcessService
 
 load_dotenv()
 
@@ -15,7 +14,7 @@ ATCLL_BROKER_PORT = int(os.getenv('ATCLL_BROKER_PORT'))
 
 
 class Consumer(Thread):
-    def __init__(self, process_service: ProcessService):
+    def __init__(self, process_service):
         super().__init__()
         self.process_service = process_service
 
@@ -34,6 +33,7 @@ class Consumer(Thread):
     def on_message(self, client, userdata, message):
         try:
             msg = json.loads(message.payload.decode('utf-8'))
+            msg_topic = message.topic
         except JSONDecodeError:
             print(f'ERROR: Unable to decode message {message.payload.decode("utf-8")}')
             return
@@ -41,21 +41,21 @@ class Consumer(Thread):
         if not msg:
             return
 
-        if msg.topic.endswith('jetson/camera/count'):
-            p_id = int(msg.topic.split('/')[0][1:])
+        if msg_topic.endswith('jetson/camera/count'):
+            p_id = int(msg_topic.split('/')[0][1:])
 
             self.process_service.camera_count(msg, p_id)
             self.process_service.check_for_traffic(p_id)
 
-        elif msg.topic.endswith('jetson/radar/traffic/1') or msg.topic.endswith('jetson/radar/traffic/2'):
-            p_id = int(msg.topic.split('/')[0][1:])
-            heading = int(msg.topic.split('/')[-1])
+        elif msg_topic.endswith('jetson/radar/traffic/1') or msg_topic.endswith('jetson/radar/traffic/2'):
+            p_id = int(msg_topic.split('/')[0][1:])
+            heading = int(msg_topic.split('/')[-1])
 
             self.process_service.radar_traffic(msg, p_id, heading)
             self.process_service.check_for_traffic(p_id, heading)
 
-        elif msg.topic.endswith('jetson/radar'):
-            p_id = int(msg.topic.split('/')[0][1:])
+        elif msg_topic.endswith('jetson/radar'):
+            p_id = int(msg_topic.split('/')[0][1:])
 
             self.process_service.check_wrong_way(msg, p_id)
 

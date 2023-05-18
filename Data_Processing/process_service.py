@@ -109,9 +109,9 @@ class ProcessService:
         self.vehicle_count[f'{p_id}:{heading}'] = vehicle_heavy + vehicle_light
 
     def check_for_traffic(self, p_id, heading=None):
-        speed = self.average_speeds[p_id] if not heading else self.average_speeds[f'{p_id}:{heading}']
-        vehicles = self.vehicle_count[p_id] if not heading else self.vehicle_count[f'{p_id}:{heading}']
-        people = self.person_count[p_id] if not heading else self.person_count[f'{p_id}:{heading}']
+        speed = self.average_speeds[p_id] if not heading else self.average_speeds[f'{p_id}:{heading}'] if f'{p_id}:{heading}' in self.average_speeds else 0
+        vehicles = self.vehicle_count[p_id] if not heading else self.vehicle_count[f'{p_id}:{heading}'] if f'{p_id}:{heading}' in self.vehicle_count else 0
+        people = self.person_count[p_id] if not heading else self.person_count[f'{p_id}:{heading}'] if f'{p_id}:{heading}' in self.person_count else 0
 
         if speed == 0 or vehicles == 0:
             return
