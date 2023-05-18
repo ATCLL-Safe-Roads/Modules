@@ -15,7 +15,7 @@ mqtt = FastMQTT(config=mqtt_config)
 def connect(client, flags, rc, properties):
     mqtt.client.subscribe('/events')
     mqtt.client.subscribe('/flows')
-    print('INFO: Connected to MQTT Broker')
+    print('INFO: Connected to MQTT Broker.')
 
 
 @mqtt.on_message()
@@ -47,4 +47,4 @@ async def message(client, topic, payload, qos, properties):
         # Insert only if it doesn't exist
         if not Flow.count_documents(dict(FlowSchema(**j))):
             Flow.insert_one(j)
-    print(f'INFO: Received message on topic {topic} {payload.decode()[:100]}')
+    print(f'INFO: Received message on topic {topic} {payload.decode()[:100]}.')

@@ -1,3 +1,5 @@
+from threading import Thread
+
 import requests
 
 from datetime import datetime, timedelta
@@ -6,6 +8,7 @@ from random import Random
 
 from app.config import settings
 from app.database import Event, Flow
+from app.open_weather_api_service import OpenWeatherApiService
 from app.serializers.graphs import GraphSerializer
 
 router = APIRouter()
@@ -24,10 +27,22 @@ def get_labels(start: datetime, end: datetime):
         hour_step = 4
     elif interval < timedelta(days=7):
         hour_step = 6
-    elif interval < timedelta(days=14):
-        hour_step = 12
-    else:
+    elif interval < timedelta(days=30):
         hour_step = 24
+    elif interval < timedelta(days=60):
+        hour_step = 48
+    elif interval < timedelta(days=90):
+        hour_step = 72 # 3 days
+    elif interval < timedelta(days=180):
+        hour_step = 168 # 7 days
+    elif interval < timedelta(days=365):
+        hour_step = 360 # 15 days
+    elif interval < timedelta(days=730):
+        hour_step = 720 # 30 days
+    elif interval < timedelta(days=1095):
+        hour_step = 1440 # 60 days
+    else:
+        hour_step = 2880 # 120 days
 
     # Get labels with hour step
     labels = [start + timedelta(hours=i) for i in range(0, int(interval.total_seconds() / 3600), hour_step)]
@@ -104,26 +119,52 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
     # Weather
 
     weather_data = {
-        'temperature': [[] for _ in range(len(labels))],
-        'humidity': [[] for _ in range(len(labels))]
+        'temperature': [0.0 for _ in range(len(labels))],
+        'humidity': [0.0 for _ in range(len(labels))]
     }
+    latitude = 40.64427
+    longitude = -8.64554
+    if hour_step <= 6:
+        weather = OpenWeatherApiService.get_history(latitude, longitude, start_dt, 168)
+        for i in range(len(labels)):
+            weather_data['temperature'][i] = weather['list'][i*hour_step]['main']['temp'] \
+                if 'cod' in weather and weather['cod'] == '200' else 0.0
+            weather_data['humidity'][i] = weather['list'][i*hour_step]['main']['humidity'] \
+                if 'cod' in weather and weather['cod'] == '200' else 0.0
+    else:
+        def fetch_single_weather_data(_i, _latitude, _longitude, _start):
+            _weather = OpenWeatherApiService.get_history(_latitude, _longitude, _start, 1)
+            weather_data['temperature'][_i] = _weather['list'][0]['main']['temp'] \
+                if 'cod' in _weather and _weather['cod'] == '200' else 0.0
+            weather_data['humidity'][_i] = _weather['list'][0]['main']['humidity'] \
+                if 'cod' in _weather and _weather['cod'] == '200' else 0.0
 
-    # TODO: Don't call for every label
-    for i in range(len(labels)):
-        weather_ts = start_dt + timedelta(hours=i * hour_step)
-        if hour_step == 24:
-            weather_ts.replace(hour=12, minute=0, second=0, microsecond=0)
-        weather_param = {
-            'appid': settings.OPENWEATHER_API_KEY,
-            'units': 'metric',
-            'lat': 40.64427,
-            'lon': -8.64554,
-            'start': int(datetime.timestamp(weather_ts)),
-            'cnt': 1
-        }
-        weather = requests.get(url=settings.OPENWEATHER_HISTORY_URL, params=weather_param).json()
-
-        weather_data['temperature'][i] = weather['list'][0]['main']['temp'] if 'cod' in weather and weather['cod'] == '200' else 0
-        weather_data['humidity'][i] = weather['list'][0]['main']['humidity'] if 'cod' in weather and weather['cod'] == '200' else 0
+        tt = []
+        for i in range(len(labels)):
+            weather_ts = start_dt + timedelta(hours=i * hour_step)
+            if hour_step == 24:
+                weather_ts = weather_ts.replace(hour=12)
+            elif hour_step == 48:
+                weather_ts = weather_ts.replace(hour=12)
+            elif hour_step == 72:
+                weather_ts = weather_ts.replace(hour=12) + timedelta(days=1)
+            elif hour_step == 168:
+                weather_ts = weather_ts.replace(hour=12) + timedelta(days=3)
+            elif hour_step == 360:
+                weather_ts = weather_ts.replace(hour=12) + timedelta(days=7)
+            elif hour_step == 720:
+                weather_ts = weather_ts.replace(hour=12) + timedelta(days=14)
+            elif hour_step == 1440:
+                weather_ts = weather_ts.replace(hour=12) + timedelta(days=30)
+            elif hour_step == 2880:
+                weather_ts = weather_ts.replace(hour=12) + timedelta(days=60)
+            t = Thread(target=fetch_single_weather_data, args=(i, latitude, longitude, weather_ts))
+            tt.append(t)
+        # Start all threads
+        for t in tt:
+            t.start()
+        # Wait for all threads to finish
+        for t in tt:
+            t.join()
 
     return GraphSerializer(labels=labels, events=events_data, flow=flow_data, weather=weather_data)
