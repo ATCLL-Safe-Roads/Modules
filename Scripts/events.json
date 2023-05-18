@@ -1,0 +1,557 @@
+{   
+    "events": [
+        {
+        "type": "road_work",
+        "source": "here",
+        "sourceid": "4411791862831483035",
+        "description": "Trabalhos de constru\u00e7\u00e3o",
+        "location": "Av. Dr. Lourenço Peixinho",
+        "geometry": [
+                        {
+                            "points": [
+                                {
+                                    "lat": 40.643689977005124,
+                                    "lng": -8.643460040912032
+                                },
+                                {
+                                    "lat": 40.64365996979177,
+                                    "lng": -8.643570011481643
+                                },
+                                {
+                                    "lat": 40.643629962578416,
+                                    "lng": -8.64369004033506
+                                },
+                                {
+                                    "lat": 40.64358998090029,
+                                    "lng": -8.643860025331378
+                                },
+                                {
+                                    "lat": 40.64355997368693,
+                                    "lng": -8.644009977579117
+                                },
+                                {
+                                    "lat": 40.64352996647358,
+                                    "lng": -8.644160013645887
+                                }
+                            ],
+                            "length": 62.0
+                        },
+                        {
+                            "points": [
+                                {
+                                    "lat": 40.64352996647358,
+                                    "lng": -8.644160013645887
+                                },
+                                {
+                                    "lat": 40.64348001033068,
+                                    "lng": -8.644420020282269
+                                }
+                            ],
+                            "length": 23.0
+                        },
+                        {
+                            "points": [
+                                {
+                                    "lat": 40.64348001033068,
+                                    "lng": -8.644420020282269
+                                },
+                                {
+                                    "lat": 40.64341999590397,
+                                    "lng": -8.64476996473968
+                                }
+                            ],
+                            "length": 31.0
+                        },
+                        {
+                            "points": [
+                                {
+                                    "lat": 40.64341999590397,
+                                    "lng": -8.64476996473968
+                                },
+                                {
+                                    "lat": 40.64332997426391,
+                                    "lng": -8.645170032978058
+                                },
+                                {
+                                    "lat": 40.643280018121004,
+                                    "lng": -8.645359966903925
+                                },
+                                {
+                                    "lat": 40.64322997815907,
+                                    "lng": -8.645600024610758
+                                },
+                                {
+                                    "lat": 40.64318999648094,
+                                    "lng": -8.645839998498559
+                                },
+                                {
+                                    "lat": 40.64312998205423,
+                                    "lng": -8.646220033988357
+                                }
+                            ],
+                            "length": 128.0
+                        },
+                        {
+                            "points": [
+                                {
+                                    "lat": 40.64312998205423,
+                                    "lng": -8.646220033988357
+                                },
+                                {
+                                    "lat": 40.64305999316275,
+                                    "lng": -8.646629992872477
+                                }
+                            ],
+                            "length": 36.0
+                        }
+                    ],
+        "start": "2023-05-15T03:20:33Z",
+        "end": "2023-05-25T03:20:33Z",
+        "timestamp": "2023-05-15T03:20:33Z"
+        },
+        {
+        "type": "road_work",
+        "source": "here",
+        "sourceid": "2806373953884673434",
+        "description": "Trabalhos de constru\u00e7\u00e3o",
+        "location": "Av. Dr. Lourenço Peixinho",
+        "geometry": [
+                        {
+                            "points": [
+                                {
+                                    "lat": 40.64414997585118,
+                                    "lng": -8.64120002835989
+                                },
+                                {
+                                    "lat": 40.644160034134984,
+                                    "lng": -8.641259958967566
+                                },
+                                {
+                                    "lat": 40.644160034134984,
+                                    "lng": -8.64133003167808
+                                },
+                                {
+                                    "lat": 40.644140001386404,
+                                    "lng": -8.641430027782917
+                                },
+                                {
+                                    "lat": 40.64401997253299,
+                                    "lng": -8.642020029947162
+                                }
+                            ],
+                            "length": 72.0
+                        },
+                        {
+                            "points": [
+                                {
+                                    "lat": 40.64401997253299,
+                                    "lng": -8.642020029947162
+                                },
+                                {
+                                    "lat": 40.64384998753667,
+                                    "lng": -8.642870038747787
+                                },
+                                {
+                                    "lat": 40.64383003860712,
+                                    "lng": -8.642980009317398
+                                },
+                                {
+                                    "lat": 40.643800031393766,
+                                    "lng": -8.643119987100363
+                                },
+                                {
+                                    "lat": 40.643759965896606,
+                                    "lng": -8.643270023167133
+                                },
+                                {
+                                    "lat": 40.643689977005124,
+                                    "lng": -8.643460040912032
+                                }
+                            ],
+                            "length": 128.0
+                        }
+                    ],
+                    "start": "2023-05-15T03:20:33Z",
+                    "end": "2023-05-25T03:20:33Z",
+                    "timestamp": "2023-05-15T03:20:33Z"
+        },
+        {
+            "type": "accident",
+            "source": "here",
+            "sourceid": "2806373953884673234",
+            "description": "Acidente",
+            "location": "Av. 5 de Outubro",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.640887,
+                                        "lng": -8.648147
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-20T08:20:33Z",
+            "end": "2023-05-20T08:30:33Z",  
+            "timestamp": "2023-05-20T08:20:33Z"
+        },
+        {
+            "type": "accident",
+            "source": "here",
+            "sourceid": "2806372353884673234",
+            "description": "Acidente",
+            "location": "R. de Santa Maria da Feira",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.631749,
+                                        "lng": -8.649453
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-24T17:50:33Z",
+            "end": "2023-05-24T18:30:33Z",
+            "timestamp": "2023-05-24T17:50:33Z"
+        },
+        {
+            "type": "congestion",
+            "source": "here",
+            "sourceid": "2806373953114673234",
+            "description": "Congestionamento",
+            "location": "Av. Artur Ravara",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.636062,
+                                        "lng": -8.654698
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-16T08:55:33Z",
+            "end": "2023-05-16T09:15:33Z",
+            "timestamp": "2023-05-16T08:55:33Z"
+        },
+        {
+            "type": "congestion",
+            "source": "here",
+            "sourceid": "2806371353114673234",
+            "description": "Congestionamento",
+            "location": "Rua de Calouste Gulbenkian",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.636113,
+                                        "lng": -8.656007
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-26T12:20:33Z",
+            "end": "2023-05-26T12:30:33Z",
+            "timestamp": "2023-05-26T12:20:33Z"
+        },
+        {
+            "type": "road_hazard",
+            "source": "here",
+            "sourceid": "2806373924384673434",
+            "description": "Perigo na estrada",
+            "location": "Av. Dom Frei Miguel de Bulhões e Sousa",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.626482,
+                                        "lng": -8.645626
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-24T10:23:33Z",
+            "end": "2023-05-24T12:10:33Z",
+            "timestamp": "2023-05-24T10:23:33Z"
+        },
+        {
+            "type": "road_hazard",
+            "source": "here",
+            "sourceid": "2806373925234673434",
+            "description": "Perigo na estrada",
+            "location": "R. da Aviação Naval",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.634244,
+                                        "lng": -8.647406
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-28T15:12:33Z",
+            "end": "2023-05-28T15:46:33Z",
+            "timestamp": "2023-05-28T15:12:33Z"
+        },
+        {
+            "type": "immobilized_vehicle",
+            "source": "here",
+            "sourceid": "2306373925234673434",
+            "description": "Veículo imobilizado",
+            "location": "Av. de Oita",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.635210,
+                                        "lng": -8.647874
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-17T16:23:33Z",
+            "end": "2023-05-17T16:54:33Z",
+            "timestamp": "2023-05-17T16:23:33Z"
+        },
+        {
+            "type": "immobilized_vehicle",
+            "source": "here",
+            "sourceid": "2306373925234673434",
+            "description": "Veículo imobilizado",
+            "location": "Av. 25 de Abril",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.636290,
+                                        "lng": -8.647024
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-19T20:12:33Z",
+            "end": "2023-05-19T20:33:33Z",
+            "timestamp": "2023-05-19T20:12:33Z"
+        },
+        {
+            "type": "closed_road",
+            "source": "here",
+            "sourceid": "2303473925234673434",
+            "description": "Estrada fechada",
+            "location": "R. de Dr. Manuel das Neves",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.637581,
+                                        "lng": -8.646899
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-27T13:34:33Z",
+            "end": "2023-05-27T14:22:33Z",
+            "timestamp": "2023-05-27T13:34:33Z"
+        },
+        {
+            "type": "closed_road",
+            "source": "here",
+            "sourceid": "2303473925234673434",
+            "description": "Estrada fechada",
+            "location": "R. de São Martinho",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.636866,
+                                        "lng": -8.648738
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-23T17:10:33Z",
+            "end": "2023-05-23T17:43:33Z",
+            "timestamp": "2023-05-23T17:10:33Z"
+        },
+        {
+            "type": "police_presence",
+            "source": "here",
+            "sourceid": "2303473925234673836",
+            "description": "Presença policial",
+            "location": "Av. Santa Joana",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.638802,
+                                        "lng": -8.650770
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-30T08:30:33Z",
+            "end": "2023-05-30T09:15:33Z",
+            "timestamp": "2023-05-30T08:30:33Z"
+        },
+        {
+            "type": "police_presence",
+            "source": "here",
+            "sourceid": "2303473925239573836",
+            "description": "Presença policial",
+            "location": "R. do Batalhão de Caçadores",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.641139,
+                                        "lng": -8.653308
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-28T11:15:33Z",
+            "end": "2023-05-28T11:50:33Z",
+            "timestamp": "2023-05-28T11:15:33Z"
+        },
+        {
+            "type": "flood",
+            "source": "here",
+            "sourceid": "2304903925239573836",
+            "description": "Cheia",
+            "location": "R. do Clube dos Galitos",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.641128,
+                                        "lng": -8.655207
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-26T06:30:33Z",
+            "end": "2023-05-26T07:30:33Z",
+            "timestamp": "2023-05-26T06:20:33Z"
+        },
+        {
+            "type": "flood",
+            "source": "here",
+            "sourceid": "2304903929593073836",
+            "description": "Cheia",
+            "location": "R. das Tricanas",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.643120,
+                                        "lng": -8.657857
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-19T22:13:33Z",
+            "end": "2023-05-19T22:43:33Z",
+            "timestamp": "2023-05-19T22:13:33Z"
+        },
+        {
+            "type": "pothole",
+            "source": "here",
+            "sourceid": "2309903929593073836",
+            "description": "Buraco na estrada",
+            "location": "R. Condessa Mumadona",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.638845,
+                                        "lng": -8.659591
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-16T09:04:33Z",
+            "end": "2023-05-25T20:13:33Z",
+            "timestamp": "2023-05-16T09:04:33Z"
+        },
+        {
+            "type": "pothole",
+            "source": "here",
+            "sourceid": "2309903929593079936",
+            "description": "Buraco na estrada",
+            "location": "R. da Pega",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.637198,
+                                        "lng": -8.658963
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-22T08:20:33Z",
+            "end": "2023-05-30T19:30:33Z",
+            "timestamp": "2023-05-22T08:20:33Z"
+        },
+        {
+            "type": "wrong_way",
+            "source": "here",
+            "sourceid": "2309975929593079936",
+            "description": "Carro em sentido contrário",
+            "location": "Av. de Araújo e Silva",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.634691,
+                                        "lng": -8.650540
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-20T08:56:33Z",
+            "end": "2023-05-20T08:58:33Z",
+            "timestamp": "2023-05-20T08:56:33Z"
+        },
+        {
+            "type": "wrong_way",
+            "source": "here",
+            "sourceid": "2309975929593034936",
+            "description": "Carro em sentido contrário",
+            "location": "Av. Vasco Branco",
+            "geometry": [
+                            {
+                                "points": [
+                                    {
+                                        "lat": 40.641967,
+                                        "lng": -8.634172
+                                    }
+                                ],
+                                "length": 72.0
+                            }
+                        ],
+            "start": "2023-05-27T10:20:33Z",
+            "end": "2023-05-27T10:22:33Z",
+            "timestamp": "2023-05-27T10:20:33Z"
+        }
+    ]
+}
