@@ -32,17 +32,17 @@ def get_labels(start: datetime, end: datetime):
     elif interval < timedelta(days=60):
         hour_step = 48
     elif interval < timedelta(days=90):
-        hour_step = 72 # 3 days
+        hour_step = 72  # 3 days
     elif interval < timedelta(days=180):
-        hour_step = 168 # 7 days
+        hour_step = 168  # 7 days
     elif interval < timedelta(days=365):
-        hour_step = 360 # 15 days
+        hour_step = 360  # 15 days
     elif interval < timedelta(days=730):
-        hour_step = 720 # 30 days
+        hour_step = 720  # 30 days
     elif interval < timedelta(days=1095):
-        hour_step = 1440 # 60 days
+        hour_step = 1440  # 60 days
     else:
-        hour_step = 2880 # 120 days
+        hour_step = 2880  # 120 days
 
     # Get labels with hour step
     labels = [start + timedelta(hours=i) for i in range(0, int(interval.total_seconds() / 3600), hour_step)]
@@ -127,10 +127,27 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
     if hour_step <= 6:
         weather = OpenWeatherApiService.get_history(latitude, longitude, start_dt, 168)
         for i in range(len(labels)):
-            weather_data['temperature'][i] = weather['list'][i*hour_step]['main']['temp'] \
+            if i*hour_step >= len(weather['list']):
+                break
+            weather_data['temperature'][i] = weather['list'][i * hour_step]['main']['temp'] \
                 if 'cod' in weather and weather['cod'] == '200' else 0.0
-            weather_data['humidity'][i] = weather['list'][i*hour_step]['main']['humidity'] \
+            weather_data['humidity'][i] = weather['list'][i * hour_step]['main']['humidity'] \
                 if 'cod' in weather and weather['cod'] == '200' else 0.0
+    elif hour_step in {24, 48, 72}:
+        j = 0
+        while start_dt < end_dt:
+            weather = OpenWeatherApiService.get_history(latitude, longitude, start_dt, 168)
+            k = 0
+            for i in range(j, len(labels)):
+                if k*hour_step >= len(weather['list']):
+                    break
+                weather_data['temperature'][i] = weather['list'][k*hour_step]['main']['temp'] \
+                    if 'cod' in weather and weather['cod'] == '200' else 0.0
+                weather_data['humidity'][i] = weather['list'][k*hour_step]['main']['humidity'] \
+                    if 'cod' in weather and weather['cod'] == '200' else 0.0
+                j += 1
+                k += 1
+            start_dt += timedelta(days=7)
     else:
         def fetch_single_weather_data(_i, _latitude, _longitude, _start):
             _weather = OpenWeatherApiService.get_history(_latitude, _longitude, _start, 1)
