@@ -127,13 +127,14 @@ class PotholeService:
                     'type': 'pothole',
                     'source': 'atcll',
                     'sourceid': '0',
-                    'description': f'Pothole detected near SLP with id {p_id} with a confidence of {100 * fd[1]:.2f}%.',
+                    'description': f'Detected pothole near SLP with id {p_id} with a confidence of {100 * fd[1]:.2f}%.',
                     'location': self.p_names[p_id],
                     'geometry': [{'points': [{'lat': lat, 'lng': lng}]}],
-                    'start': str(now_ts.isoformat()),
-                    'end': str((now_ts + timedelta(days=1)).isoformat()),
-                    'timestamp': str(now_ts),
+                    'start': str(now_ts.replace(microsecond=0).isoformat()) + 'Z',
+                    'end': str((now_ts + timedelta(days=1)).replace(microsecond=0).isoformat()) + 'Z',
+                    'timestamp': str(now_ts.replace(microsecond=0).isoformat()) + 'Z'
                 }
-                events_status = self.mqtt_producer.publish(json.dumps(msg).encode('utf-8'), '/events')
+                print(f'INFO: {msg["description"]}')
 
+                events_status = self.mqtt_producer.publish(json.dumps(msg).encode('utf-8'), '/events')
                 print(f'INFO: Published pothole event from ATCLL - events={"OK" if events_status == 0 else "ERROR"}')

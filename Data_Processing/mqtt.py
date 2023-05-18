@@ -29,13 +29,16 @@ class Consumer(Thread):
             self.client.subscribe(f'p{p_id}/jetson/camera/count')
             self.client.subscribe(f'p{p_id}/jetson/radar/traffic/1')
             self.client.subscribe(f'p{p_id}/jetson/radar/traffic/2')
-        self.client.subscribe(f'p33/jetson/radar')
+            self.client.subscribe(f'p{p_id}/jetson/radar')
 
     def on_message(self, client, userdata, message):
         try:
             msg = json.loads(message.payload.decode('utf-8'))
         except JSONDecodeError:
             print(f'ERROR: Unable to decode message {message.payload.decode("utf-8")}')
+            return
+
+        if not msg:
             return
 
         if msg.topic.endswith('jetson/camera/count'):
@@ -52,7 +55,9 @@ class Consumer(Thread):
             self.process_service.check_for_traffic(p_id, heading)
 
         elif msg.topic.endswith('jetson/radar'):
-            self.process_service.check_wrong_way(msg)
+            p_id = int(msg.topic.split('/')[0][1:])
+
+            self.process_service.check_wrong_way(msg, p_id)
 
     def run(self):
         self.client.loop_forever()
