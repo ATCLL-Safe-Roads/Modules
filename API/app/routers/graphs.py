@@ -1,12 +1,8 @@
-from threading import Thread
-
-import requests
-
 from datetime import datetime, timedelta
 from fastapi import APIRouter
 from random import Random
+from threading import Thread
 
-from app.config import settings
 from app.database import Event, Flow
 from app.open_weather_api_service import OpenWeatherApiService
 from app.serializers.graphs import GraphSerializer
@@ -95,8 +91,6 @@ async def get_graphs(type: str = None, source: str = None, location: str = None,
     # Flow
 
     flows_query = {}
-    if source:
-        flows_query['source'] = {'$eq': source}
     if start:
         flows_query['timestamp'] = {'$gte': datetime.fromisoformat(start)}
     if end:
