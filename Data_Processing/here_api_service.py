@@ -149,7 +149,7 @@ class HereApiService:
         if 'results' in ti_data:
             for incident in ti_data['results']:
                 # Skip unsupported types
-                if not TYPE_FROM_HERE[incident['type']]:
+                if not TYPE_FROM_HERE[incident['incidentDetails']['type']]:
                     continue
 
                 # Skip if there are no coordinates
