@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.get('')
-async def get_flows(source: str = None, start: str = None, end: str = None):
+async def get_flows(start: str = None, end: str = None):
     # Sanitize start and end
     if start:
         start = start[:-1] if start[-1] == 'Z' else start
@@ -16,8 +16,6 @@ async def get_flows(source: str = None, start: str = None, end: str = None):
         end = end[:-1] if end[-1] == 'Z' else end
 
     query = {}
-    if source:
-        query['source'] = {'$eq': source}
     if start:
         query['timestamp'] = {'$gte': datetime.fromisoformat(start)}
     if end:
