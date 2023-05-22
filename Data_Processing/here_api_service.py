@@ -194,9 +194,9 @@ class HereApiService:
                 tf_msgs.append(msg)
 
         # Publish
-        events_status = self.mqtt_producer.publish(json.dumps(ti_msgs).encode('utf-8'), '/events')
-        flows_status = self.mqtt_producer.publish(json.dumps(tf_msgs).encode('utf-8'), '/flows')
+        events_status = [self.mqtt_producer.publish(json.dumps(ti_msg).encode('utf-8'), '/events') for ti_msg in ti_msgs]
+        flows_status = [self.mqtt_producer.publish(json.dumps(tf_msg).encode('utf-8'), '/flows') for tf_msg in tf_msgs]
 
-        print(f'INFO: Fetched and published data from HERE API - events={"OK" if events_status == 0 else "ERROR"}, '
-              f'flows={"OK" if flows_status == 0 else "ERROR"}')
+        print(f'INFO: Fetched and published data from HERE API - events={"OK" if sum(events_status) == 0 else "ERROR"}, '
+              f'flows={"OK" if sum(flows_status) == 0 else "ERROR"}')
 
