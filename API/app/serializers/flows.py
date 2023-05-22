@@ -1,7 +1,19 @@
+from bson import ObjectId
 from datetime import datetime
+from pydantic import BaseModel, Field
 from typing import List
 
-from pydantic import BaseModel
+
+class OID(ObjectId):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not isinstance(v, ObjectId):
+            raise TypeError('ObjectId required')
+        return str(v)
 
 
 class FlowPoint(BaseModel):
@@ -20,9 +32,15 @@ class FlowSegment(BaseModel):
 
 
 class FlowSerializer(BaseModel):
-    _id: str
+    id: OID = Field(alias="_id")
     source: str
     location: str
     avgspeed: float
     segments: List[FlowSegment]
     timestamp: datetime
+
+    def dict(self, **kwargs):
+        data = super().dict(**kwargs)
+        if '_id' in data:
+            data['id'] = data.pop('_id')
+        return data
