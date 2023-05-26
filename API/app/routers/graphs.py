@@ -105,10 +105,10 @@ async def get_graphs(type: str = None, source: str = None, weather: str = None, 
         # Distribute flow in labels
         for i in range(len(labels)):
             if flow['timestamp'] <= labels[i] < flow['timestamp'] + timedelta(hours=hour_step):
-                flow_data['real'][i].extend([segment['jam_factor'] for segment in flow['segments']])
+                flow_data['real'][i].append(flow['avgspeed'])
     # Average flow in each label
-    flow_data['real'] = [sum(jam_factors) / len(jam_factors)
-                         if len(jam_factors) > 0 else 0 for jam_factors in flow_data['real']]
+    flow_data['real'] = [3.6 * sum(avgspeeds) / len(avgspeeds)
+                         if len(avgspeeds) > 0 else 0 for avgspeeds in flow_data['real']]
 
     # Weather
 
