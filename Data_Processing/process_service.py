@@ -150,7 +150,7 @@ class ProcessService:
             msg = {
                 'source': 'atcll',
                 'location': self.p_names[p_id],
-                'avgspeed': speed * 3.6,
+                'avgspeed': speed,
                 'segments': [{'jam_factor': jf, 'geometry': [{'points': points, 'length': 0}]}],
                 'timestamp': str(now_ts.replace(microsecond=0).isoformat()) + 'Z'
             }
