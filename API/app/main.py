@@ -10,12 +10,38 @@ mqtt.init_app(app)
 
 
 def custom_openapi():
-    return get_openapi(
+    openapi_schema = get_openapi(
         title='ATCLL - Safe Roads - API Module',
         version='1.0.0',
         routes=app.routes,
     )
-
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://atcll-data.nap.av.it.pt/static/img/logo.png"
+    }
+    openapi_schema["paths"]["/events"]["get"]["parameters"][0][
+        "description"] = "accident,road_work,congestion,road_hazard,immobilized_vehicle,closed_road,police_presence,floo,pothole,wrong_way"
+    openapi_schema["paths"]["/events"]["get"]["parameters"][1][
+        "description"] = "here or atcll"
+    openapi_schema["paths"]["/events"]["get"]["parameters"][3][
+        "description"] = "Start date in format '%Y-%m-%dT%H:%M:%S%z'"
+    openapi_schema["paths"]["/events"]["get"]["parameters"][4][
+        "description"] = "End date in format '%Y-%m-%dT%H:%M:%S%z'"
+    openapi_schema["paths"]["/flows"]["get"]["parameters"][0][
+        "description"] = "Start date in format '%Y-%m-%dT%H:%M:%S%z'"
+    openapi_schema["paths"]["/flows"]["get"]["parameters"][1][
+        "description"] = "End date in format '%Y-%m-%dT%H:%M:%S%z'"
+    openapi_schema["paths"]["/graphs"]["get"]["parameters"][0][
+        "description"] = "accident,road_work,congestion,road_hazard,immobilized_vehicle,closed_road,police_presence,floo,pothole,wrong_way"
+    openapi_schema["paths"]["/graphs"]["get"]["parameters"][1][
+        "description"] = "here or atcll"
+    openapi_schema["paths"]["/graphs"]["get"]["parameters"][2][
+        "description"] = "temperature or humidity or temperature,humidity"
+    openapi_schema["paths"]["/graphs"]["get"]["parameters"][4][
+        "description"] = "Start date in format '%Y-%m-%dT%H:%M:%S%z'"
+    openapi_schema["paths"]["/graphs"]["get"]["parameters"][5][
+        "description"] = "End date in format '%Y-%m-%dT%H:%M:%S%z'"
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
 
 # API Documentation
 app.openapi = custom_openapi
