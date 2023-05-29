@@ -169,7 +169,7 @@ class HereApiService:
                     'source': 'here',
                     'sourceid': incident['incidentDetails']['id'],
                     'description': incident['incidentDetails']['description']['value'],
-                    'location': location,
+                    'location': location['items'][0]['title'],
                     'geometry': incident['location']['shape']['links'],
                     'start': incident['incidentDetails']['startTime'],
                     'end': incident['incidentDetails']['endTime'],
