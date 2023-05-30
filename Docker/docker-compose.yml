@@ -1,11 +1,4 @@
 services:
-  mqtt:
-    image: eclipse-mosquitto
-    networks:
-      - back-net
-    volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf 
-
   mongo:
     image: mongo:latest
     container_name: mongo
@@ -31,7 +24,7 @@ services:
   fastapi:
     restart: always
     build: ../API
-    command: uvicorn app.main:app --reload
+    command: uvicorn app.main:app --reload --host 0.0.0.0
     volumes:
       - ../API:/code
     ports:
@@ -52,7 +45,6 @@ services:
       - back-net
     depends_on:
       - fastapi
-      - mqtt
 
 volumes:
   mongo:
