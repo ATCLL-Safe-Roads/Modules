@@ -4,10 +4,21 @@ from fastapi.openapi.utils import get_openapi
 
 from app.mqtt import mqtt
 from app.routers import events, flows, graphs
+import sys
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG, 
+    format='%(asctime)s,%(msecs)03d: %(module)17s->%(funcName)-15s - [%(levelname)7s] - %(message)s',
+    handlers=[logging.StreamHandler(stream=sys.stdout)]
+)
+
+_SystemLogger = logging.getLogger().getChild('System')
+
+_SystemLogger.info("Successfully imported module")
 
 app = FastAPI()
 mqtt.init_app(app)
-
 
 def custom_openapi():
     openapi_schema = get_openapi(
