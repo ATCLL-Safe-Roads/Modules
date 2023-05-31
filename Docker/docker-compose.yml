@@ -1,0 +1,53 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - back-net
+    volumes:
+      - mongo:/data/db
+    ports:
+      - ${MONGO_PORT}:27017
+
+  fastapi:
+    restart: always
+    build: ../API
+    command: uvicorn app.main:app --reload --host 0.0.0.0
+    volumes:
+      - ../API:/code
+    ports:
+      - 8000:8000
+    networks:
+      - back-net
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  data_processing:
+    restart: always
+    build: ../Data_Processing
+    command: python3 main.py
+    volumes:
+      - ../Data_Processing:/code
+    networks:
+      - back-net
+    depends_on:
+      - fastapi
+
+volumes:
+  mongo:
+
+networks:
+  back-net:
