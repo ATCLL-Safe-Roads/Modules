@@ -58,17 +58,8 @@ class PotholeService:
             self.p_ptc_tables[p_id] = ptc_table
 
     def check_potholes(self):
-        tt = []
-        # Create a thread for each SLP
         for p_id in self.p_ids:
-            t = Thread(target=self.__check, args=(p_id,))
-            tt.append(t)
-        # Start all threads
-        for t in tt:
-            t.start()
-        # Wait for all threads to finish
-        for t in tt:
-            t.join()
+            self.__check(p_id)
         print('INFO: Pothole check finished.')
 
     def __check(self, p_id):

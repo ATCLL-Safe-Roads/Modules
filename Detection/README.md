@@ -6,6 +6,8 @@ This module contains training data and scripts to support the development of a Y
 
 ## Contents
 
+- `atcll_video_plain` - Connects to a remote camera using RTSP and outputs the frames.
+
 - `atcll_video.py` - Connects to a remote camera using RTSP and executes one of the trained models to each frame, outputing the frames with the bounding boxes.
   
   - `--detect` - model to execute on the frames (`pothole`).

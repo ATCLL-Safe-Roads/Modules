@@ -2,19 +2,47 @@ from numpy import array, zeros, fabs
 
 
 def __get_pixel_to_coordinates_mapping(p_id):
-    if p_id == 33:
+    if p_id == 1:
+        return {
+            'p1': (10, 85), 'c1': (40.634949, -8.660134),
+            'p2': (408, 95), 'c2': (40.634709, -8.660143),
+            'p3': (60, 400), 'c3': (40.634759, -8.660356),
+            'p4': (590, 360), 'c4': (40.634727, -8.660328)
+        }, 640, 480
+    elif p_id == 25:
+        return {
+            'p1': (87, 59), 'c1': (40.637156, -8.653339),
+            'p2': (462, 49), 'c2': (40.637110, -8.653010),
+            'p3': (49, 329), 'c3': (40.636928, -8.653224),
+            'p4': (525, 301), 'c4': (40.636921, -8.653145)
+        }, 640, 360
+    elif p_id == 30:
+        return {
+            'p1': (91, 140), 'c1': (40.635836, -8.646328),
+            'p2': (259, 140), 'c2': (40.635828, -8.646526),
+            'p3': (175, 301), 'c3': (40.635999, -8.646551),
+            'p4': (616, 210), 'c4': (40.635958, -8.646707)
+        }, 640, 360
+    elif p_id == 33:
         return {
             'p1': (64, 142), 'c1': (40.632459, -8.648389),
             'p2': (485, 50), 'c2': (40.632158, -8.648347),
             'p3': (428, 336), 'c3': (40.632422, -8.648547),
             'p4': (620, 78), 'c4': (40.632099, -8.648497)
-        }
+        }, 640, 360
+    elif p_id == 35:
+        return {
+            'p1': (50, 145), 'c1': (40.630327, -8.653907),
+            'p2': (510, 90), 'c2': (40.630046, -8.653729),
+            'p3': (60, 400), 'c3': (40.630298, -8.654143),
+            'p4': (590, 360), 'c4': (40.630241, -8.654160)
+        }, 640, 480
     else:
         return None
 
 
-def get_pixel_to_coordinates_table(p_id, w=640, h=360):
-    mapping = __get_pixel_to_coordinates_mapping(p_id)
+def get_pixel_to_coordinates_table(p_id):
+    mapping, w, h = __get_pixel_to_coordinates_mapping(p_id)
     if mapping is None:
         return None  # Unsupported p_id
 
@@ -84,10 +112,10 @@ def get_pixel_to_coordinates_table(p_id, w=640, h=360):
          [c, d, gama2],
          [p, q, 1]]
 
-    lookup = [[0 for col in range(w)] for row in range(h)]
+    lookup = [[0 for col in range(h)] for row in range(w)]
 
-    for l in range(0, h):
-        for c in range(0, w):
+    for l in range(0, w):
+        for c in range(0, h):
             B = [[c],
                  [l],
                  [1]]
